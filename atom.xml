@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://finik.net/"/>
-  <updated>2015-09-28T09:33:37.985Z</updated>
+  <updated>2015-09-28T09:43:32.201Z</updated>
   <id>http://finik.net/</id>
   
   <author>
@@ -16,8 +16,8 @@
   
   <entry>
     <title><![CDATA[Typing bidi text]]></title>
-    <link href="http://finik.net/blog/2014/10/30/bidi/"/>
-    <id>http://finik.net/blog/2014/10/30/bidi/</id>
+    <link href="http://finik.net/2014/10/30/bidi/"/>
+    <id>http://finik.net/2014/10/30/bidi/</id>
     <published>2014-10-31T05:17:42.000Z</published>
     <updated>2014-10-31T05:19:38.000Z</updated>
     <content type="html"><![CDATA[<p>I feel stupid asking it, but where can I learn that sacral secret knowledge of typing hebrew text mixed with english, numbers and punctuation using modern editors and operating systems? Oh, and after typing, being able to copy-paste it to another app/window while preserving the right order of elements in a sentence. I can’t remember the last time I did that, I think the most popular text editor in Israel was called Einstein back then and copy-paste hasn’t been discovered by humanity yet, in any case I can’t seem to be able to do it now, no matter what I try. All I need is to type two short sentences.</p>
@@ -36,8 +36,8 @@
   
   <entry>
     <title><![CDATA[NGINX rewrites on Amazon Elastic Beanstalk]]></title>
-    <link href="http://finik.net/blog/2014/10/29/Beanstalk/"/>
-    <id>http://finik.net/blog/2014/10/29/Beanstalk/</id>
+    <link href="http://finik.net/2014/10/29/Beanstalk/"/>
+    <id>http://finik.net/2014/10/29/Beanstalk/</id>
     <published>2014-10-30T05:33:15.000Z</published>
     <updated>2014-10-30T09:11:47.000Z</updated>
     <content type="html"><![CDATA[<p>We are running most of our backend code at <a href="https://www.dishero.com" target="_blank" rel="external">Dishero</a> on Amazon Elastic Beanstalk and it has been great so far. With Elastic Beanstalk we don’t need to worry about provisoning new instances and auto-scaling, in most cases it just allows us to upload our app and ELB takes care of the rest, however in some rare cases when we actually want to tinker with the internals and do some changes to the actual container it appears to be non-trivial and sometimes takes time to figure out.</p>
@@ -87,8 +87,8 @@
   
   <entry>
     <title><![CDATA[hexo]]></title>
-    <link href="http://finik.net/blog/2014/10/29/hexo/"/>
-    <id>http://finik.net/blog/2014/10/29/hexo/</id>
+    <link href="http://finik.net/2014/10/29/hexo/"/>
+    <id>http://finik.net/2014/10/29/hexo/</id>
     <published>2014-10-29T08:13:23.000Z</published>
     <updated>2014-10-30T05:29:06.000Z</updated>
     <content type="html"><![CDATA[<p>Spent the evening setting up a new blog engine as I couldn’t revive the old one. This whole Ruby/Gem/Bundle mess is beyond me, it just never works. So this blog is now running on hexo. I am sure that won’t make me write more, but its Node.JS/NPM based, so at least I will be able to set it up again on a new machine if I suddenly do decide to.</p>
@@ -106,8 +106,8 @@
   
   <entry>
     <title><![CDATA[Google Reader]]></title>
-    <link href="http://finik.net/blog/2013/03/24/google-reader/"/>
-    <id>http://finik.net/blog/2013/03/24/google-reader/</id>
+    <link href="http://finik.net/2013/03/24/google-reader/"/>
+    <id>http://finik.net/2013/03/24/google-reader/</id>
     <published>2013-03-25T00:41:00.000Z</published>
     <updated>2014-10-30T09:01:14.000Z</updated>
     <content type="html"><![CDATA[<p>Since Google has shut down the Reader I keep reading in various sources the same idea over and over again. The idea that RSS is an old technology, that it was and is used only by geeks, and that it is obsolete and not needed anymore as one is supposed to get his fix of news through social media (facebook, twitter) and social reading apps like zite, flipboard, etc.</p>
@@ -131,8 +131,8 @@
   
   <entry>
     <title><![CDATA[Hello, Octopress!]]></title>
-    <link href="http://finik.net/blog/2012/12/19/hello-octopress/"/>
-    <id>http://finik.net/blog/2012/12/19/hello-octopress/</id>
+    <link href="http://finik.net/2012/12/19/hello-octopress/"/>
+    <id>http://finik.net/2012/12/19/hello-octopress/</id>
     <published>2012-12-20T06:08:00.000Z</published>
     <updated>2014-10-30T05:17:43.000Z</updated>
     <content type="html"><![CDATA[<p>I finally gave in to peer pressure and switched my blog to Octopress.</p>
@@ -154,8 +154,8 @@
   
   <entry>
     <title><![CDATA[Multiple working folders with single GIT repository]]></title>
-    <link href="http://finik.net/blog/2010/10/24/multiple-working-folders-with-single-git-repository/"/>
-    <id>http://finik.net/blog/2010/10/24/multiple-working-folders-with-single-git-repository/</id>
+    <link href="http://finik.net/2010/10/24/multiple-working-folders-with-single-git-repository/"/>
+    <id>http://finik.net/2010/10/24/multiple-working-folders-with-single-git-repository/</id>
     <published>2010-10-24T20:52:00.000Z</published>
     <updated>2014-10-30T09:01:14.000Z</updated>
     <content type="html"><![CDATA[<h2 id="The_problem">The problem</h2>
