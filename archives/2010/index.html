@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Archives: 2010 | Dmitry Fink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dmitry Fink">
+<meta property="og:url" content="http://finik.net/archives/2010/">
+<meta property="og:site_name" content="Dmitry Fink">
+<meta property="og:description">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dmitry Fink">
+<meta name="twitter:description">
+<meta name="twitter:creator" content="@finik">
+<link rel="publisher" href="102647827171370750000">
+
+  
+    <link rel="alternative" href="/atom.xml" title="Dmitry Fink" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17764337-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Dmitry Fink</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/resume">Resume</a>
+        
+          <a class="main-nav-link" href="/contact">Contact</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://finik.net"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-multiple-working-folders-with-single-git-repository" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2010/10/24/multiple-working-folders-with-single-git-repository/" class="article-date">
+  <time datetime="2010-10-24T20:52:00.000Z" itemprop="datePublished">Oct 24 2010</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2010/10/24/multiple-working-folders-with-single-git-repository/">Multiple working folders with single GIT repository</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="The_problem">The problem</h2>
+<p>As much as I love GIT, there are several design decisions that make my everyday work really difficult. One of such design flaws is making the repository and the working folder tightly coupled. It is a serious problem for every developer who is frequently switching between several product/topic branches of the same project.</p>
+<p>Git gives you two options to deal with this:</p>
+<ul>
+<li>Create different local clones of the repository and checkout different branch in every one of them.</li>
+<li>Do all your work in one local repository, every time you have a task switch ether stash or commit your changes on the current branch and checkout a different one.</li>
+</ul>
+<p>As I quickly learned both solutions were not very practical for what I was doing. As a linux kernel developer in a company that actually ships multiple linux based products, I eventually found myself working and supporting several product branches, sometimes based on different versions of the kernel. One branch could be plain vanilla kernel.org kernel based on 2.6.32, another one could be an old product running of 2.6.24 with tons of additional architecture specific code that came from a vendor, etc. Both approaches had very serious drawbacks:</p>
+<ul>
+<li>Cloning a kernel repository for each product/branch would take more disk space (every copy of kernel repository is about 500MB), even though disk space is cheap today, you have to admit it doesn’t make sense to keep several copies of the same binary blob on your disk (UPDATE 10/25/2010: That is actually not true, cloning locally from the existing repository is done via hard links, so no extra space is wasted). But the biggest problem is synchronizing all these local repositories. If I need to merge branches or cherry-pick individual commits between them I end up pushing and pulling the changes through a shared remote repository, or connecting these local repositories as remotes to one another.</li>
+<li>Doing all your work in one repository is not an option either, if you ever tried to checkout a 2.6.24 linux kernel branch while already having 2.6.35 in your folder you’d understand why, it takes time. When you are multi-tasking you usually try to minimize the overhead of each switch and having to stash your current work or create dummy commits every time you switch doesn’t seem like the right way to do it. Another drawback to this approach is there is no convenient way to do a nice visual diff between files and folders on two branches, yes, it’s doable, but it is not as easy as running “meld folderA folderB”.</li>
+</ul>
+<h2 id="The_solution">The solution</h2>
+<p>I’m not going to take credit for the method I am going to show you, I wasn’t the one who came up with it, Ed, one of the guys on my team did. Ed actually developed whole set of useful scripts for kernel development involving frequent switching between product branching, but the part about branching and multiple working folders is applicable to other projects as well, so that’s what I want to share with you.<br>Actually the trick is quite trivial, we use our knowledge of git internals and unix symbolic links to achieve what we want. All we wanted is to have one repository and multiple working folders associated with it, so lets do just that. That is how our final folder structure will look like:</p>
+<pre><code>project
++-.repo
+  +-.git
+    +-branches
+    +-config
+    +-description
+    +-HEAD
+    +-hooks
+    +-objects
+    +-info
+    +-packed-refs
+    +-refs
++-branchA
+  +-.git
+    +-branches<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/.git/branches
+    +-config<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/config
+    +-description
+    +-HEAD
+    +-index
+    +-hooks<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/hooks
+    +-objects<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/objects
+    +-info<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/info
+    +-packed-refs<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/packed-refs
+    +-refs<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/refs
++-branchB
++-branchC
+...
+etc
+</code></pre><p>We created one wrapper “project” folder, one master GIT repository in .repo and a bunch of branchX folders. Each one of these folders is a legal GIT folder by itself, however it doesn’t keep its own config and objects/refs repositories, it links to the one in .repo instead. It does keep a private local version of HEAD, index (staging area) and the whole working folder. Every manipulation on the database performed in any of the branch folders is immediately visible in others (commits, branches, tags, remote changes), context switching is just a matter of changing folders now.</p>
+<p>This is how we initialize this structure for the first time time:</p>
+<figure class="highlight bash"><figcaption><span>init.sh</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">mkdir .repo</div><div class="line"><span class="built_in">pushd</span> .repo</div><div class="line"></div><div class="line">git init</div><div class="line">git remote add origin git://some.remote.url.../project.git</div><div class="line">git fetch origin</div><div class="line"></div><div class="line"><span class="built_in">popd</span></div><div class="line"></div><div class="line">newfolder.sh branchA</div><div class="line"><span class="built_in">pushd</span> branchA</div><div class="line">git checkout -b branchA origin/branchA</div><div class="line"><span class="built_in">popd</span></div><div class="line"></div><div class="line">newfolder.sh branchB</div><div class="line"><span class="built_in">pushd</span> branchB</div><div class="line">git checkout -b branchB origin/branchB</div><div class="line"><span class="built_in">popd</span></div></pre></td></tr></table></figure>
+
+<p>The script we used to automate creation of a new working folder (newfolder.sh). We can call it as many times as we want an whenever we need to create a new folder.</p>
+<figure class="highlight bash"><figcaption><span>newfolder.sh</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$1</span>"</span> == <span class="string">""</span> ]; <span class="keyword">then</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"Need to specify target."</span></div><div class="line">	<span class="keyword">return</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">TARGET=<span class="variable">$1</span></div><div class="line">mkdir <span class="variable">$TARGET</span></div><div class="line"><span class="built_in">pushd</span> <span class="variable">$TARGET</span></div><div class="line"></div><div class="line">git init</div><div class="line"></div><div class="line"><span class="built_in">pushd</span> .git</div><div class="line"></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> branches config hooks info objects refs packed-refs ; <span class="keyword">do</span></div><div class="line">	rm -rf <span class="variable">$i</span></div><div class="line">	ln -sf ../../.repo/.git/<span class="variable">$i</span> <span class="variable">$i</span></div><div class="line"><span class="keyword">done</span></div><div class="line"></div><div class="line"><span class="built_in">popd</span> <span class="comment"># .git</span></div><div class="line"><span class="built_in">popd</span> <span class="comment"># $TARGET</span></div></pre></td></tr></table></figure>
+
+<p>Enjoy! I find this method very useful already, but I’ll be glad to hear some feedback since I am sure someone will come up with a way to polish it and make it even better.</p>
+<p><strong>Update 10/25/01</strong>: I wrote the post yesterday, and today I accidentally found out that the trick described above for a while has been a part of a standard git distribution and can be found in contrib/workdir/git-new-workdir :)</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://finik.net/2010/10/24/multiple-working-folders-with-single-git-repository/" data-id="34x1jr7qgzs7jh93" class="article-share-link">Share</a>
+      
+        <a href="http://finik.net/2010/10/24/multiple-working-folders-with-single-git-repository/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/build/">build</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kernel/">kernel</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+  
+</section>
+        
+          <aside id="sidebar">
+  
+      <div class="widget-wrap">
+    <h3 class="widget-title">About</h3>
+    <div class="widget">
+      <img src="/images/portrait.jpg"><br>
+      CTO and Founder of <a href="https://www.dishero.com">Dishero</a>. In previous life hacked and managed teams at Amazon, TI, Palm/HP, Zoran, Intel.<hr>
+      <a href="https://linkedin.com/in/finik">https://linkedin.com/in/finik</a><br>
+      <a href="https://angel.co/finik">https://angel.co/finik</a><br>
+      <a href="https://twitter.com/finik">https://twitter.com/finik</a><br>
+      <a href="https://github.com/finik">https://github.com/finik</a><br>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/04/16/altool/">Xcode 6.3 breaks continuous integration with altool</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/30/bidi/">Typing bidi text</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/29/Beanstalk/">NGINX rewrites on Amazon Elastic Beanstalk</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/29/hexo/">hexo</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/24/google-reader/">Google Reader</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/amazon/">amazon</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bidi/">bidi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/build/">build</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-beanstalk/">elastic beanstalk</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hebrew/">hebrew</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/">kernel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/octopress/">octopress</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rant/">rant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rss/">rss</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode-ios/">xcode, ios</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/amazon/" style="font-size: 10.00px;">amazon</a><a href="/tags/aws/" style="font-size: 10.00px;">aws</a><a href="/tags/bidi/" style="font-size: 10.00px;">bidi</a><a href="/tags/blog/" style="font-size: 20.00px;">blog</a><a href="/tags/build/" style="font-size: 10.00px;">build</a><a href="/tags/elastic-beanstalk/" style="font-size: 10.00px;">elastic beanstalk</a><a href="/tags/git/" style="font-size: 10.00px;">git</a><a href="/tags/google/" style="font-size: 10.00px;">google</a><a href="/tags/hebrew/" style="font-size: 10.00px;">hebrew</a><a href="/tags/hexo/" style="font-size: 10.00px;">hexo</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/nginx/" style="font-size: 10.00px;">nginx</a><a href="/tags/octopress/" style="font-size: 10.00px;">octopress</a><a href="/tags/rant/" style="font-size: 10.00px;">rant</a><a href="/tags/rss/" style="font-size: 10.00px;">rss</a><a href="/tags/xcode-ios/" style="font-size: 10.00px;">xcode, ios</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2010/10/">October 2010</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Dmitry Fink<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/resume" class="mobile-nav-link">Resume</a>
+  
+    <a href="/contact" class="mobile-nav-link">Contact</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'finiknet';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+  </div>
+</body>
+</html>
