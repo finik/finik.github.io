@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://finik.net/"/>
-  <updated>2015-09-28T09:15:27.106Z</updated>
+  <updated>2015-09-28T09:31:03.595Z</updated>
   <id>http://finik.net/</id>
   
   <author>
@@ -13,21 +13,6 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
-  
-  <entry>
-    <title><![CDATA[Xcode 6.3 breaks continuous integration with altool]]></title>
-    <link href="http://finik.net/2015/04/16/altool/"/>
-    <id>http://finik.net/2015/04/16/altool/</id>
-    <published>2015-04-17T01:57:03.000Z</published>
-    <updated>2015-04-17T01:57:55.000Z</updated>
-    <content type="html"><![CDATA[]]></content>
-    <summary type="html">
-    <![CDATA[]]>
-    </summary>
-    
-      <category term="xcode, ios" scheme="http://finik.net/tags/xcode-ios/"/>
-    
-  </entry>
   
   <entry>
     <title><![CDATA[Typing bidi text]]></title>
