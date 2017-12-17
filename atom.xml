@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://finik.net/"/>
-  <updated>2017-12-16T06:41:23.052Z</updated>
+  <updated>2017-12-17T00:05:12.844Z</updated>
   <id>http://finik.net/</id>
   
   <author>
@@ -13,6 +13,59 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Managing iOS build configurations]]></title>
+    <link href="http://finik.net/2016/08/30/Managing-iOS-build-configurations/"/>
+    <id>http://finik.net/2016/08/30/Managing-iOS-build-configurations/</id>
+    <published>2016-08-30T22:53:26.000Z</published>
+    <updated>2017-12-17T00:03:02.979Z</updated>
+    <content type="html"><![CDATA[<h2 id="Why?">Why?</h2>
+<p>Applications today are rarely being built without 3rd party libraries and SDKs. There are libraries for integrating remote backends into your app. Libraries for effective image caching and loading. Libraries for gathering analytics and libraries for pushing messages. Libraries that help your users report issues, help you debug and analyze crashes. (Yes, that last one is Bugsee)</p>
+<p>It is also a common practice for developers to maintain more than flavor of the application during active development. A debug version of the application may require a new version of the backend server which also might be under development still, it might send analytics data to a different service or it may need to include a helper library that is not necessary in the release version.</p>
+<p>This following tutorial describes several options for maintaining different build configurations.</p>
+<p>We are using Bugsee SDK as an example in this tutorial. At the same time, we do want to point out, that Bugsee SDK is extremely lightweight and doesn’t impact your user’s experience. Bugsee also passes all Apple Appstore requirements. A lot of Bugsee’s customers have seen the benefits of shipping the library in their App Store builds, it provides them with video-enabled crash reporting and in-app bug reporting.</p>
+<h2 id="Debug_vs-_Release">Debug vs. Release</h2>
+<p>This one is the default most common setup you get when you create your application with xCode. With preprocessor macros it is easy to differentiate at compile time between a Debug and a Release build. Thus, it is easy to launch (or not launch) a library in any particular configuration. Lets launch Bugsee only in Debug build.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#if DEBUG</span></div><div class="line"><span class="preprocessor">#import "Bugsee/Bugsee.h"</span></div><div class="line"><span class="preprocessor">#endif</span></div><div class="line"></div><div class="line">....</div><div class="line"></div><div class="line">- (BOOL)application:(UIApplication *)application</div><div class="line">    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {</div><div class="line">    <span class="comment">// ...other initialization code</span></div><div class="line"><span class="preprocessor">#if DEBUG </span></div><div class="line">    [Bugsee launchWithToken:@<span class="string">"your app token"</span>];</div><div class="line"><span class="preprocessor">#endif</span></div></pre></td></tr></table></figure>
+
+<p>So now you don’t import and don’t run it, but the framework is still getting packaged into your application. If you use CocoaPods for you library management, there is a solution, starting with v0.34, CocoaPods honors build configurations. All you have to do is put the following in your Podfile:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pod <span class="string">'Bugsee'</span>, <span class="symbol">:configurations</span> =&gt; [<span class="string">'Debug'</span>]</div></pre></td></tr></table></figure>
+
+<p>Unfortunately, if you manually copy libraries into your project, you are out of luck.</p>
+<h2 id="Debug_vs-_Release_(+TestFlight)">Debug vs. Release (+TestFlight)</h2>
+<p>In this configuration you still manage and maintain two build flavors (Debug and Release). The Release build is first distributed to QA and Beta testers through Apple TestFlight and only when ready you promote it to App Store. The beauty of this approach is that it is the same build(same binary!). Thus, you can be sure there are no differences between what was tested and what was released. This means, however, that Bugsee SDK must be part of that Release build and you just want to disable it when it is being installed from App Store.</p>
+<p>Fortunately, it is easy to differentiate between App Store and Testflight installations in run-time and initialize Bugsee only when appropriate:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application</div><div class="line">    didFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions {</div><div class="line">    <span class="comment">// ...other initialization code</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> ([[[[<span class="built_in">NSBundle</span> mainBundle] appStoreReceiptURL] lastPathComponent] isEqualToString:<span class="string">@"sandboxReceipt"</span>]) {</div><div class="line">        <span class="comment">// We are in TestFlight, enable Bugsee!</span></div><div class="line">        [Bugsee launchWithToken:<span class="string">@"your app token"</span>];</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h3 id="Debug_vs-_Release_vs-_Beta">Debug vs. Release vs. Beta</h3>
+<p>In this setup you create and maintain three build flavors. Distribution method of the Beta flavor is not important, it can be done either through Ad-hoc distribution (see our <a href="">tutorial on building in house Ad-hoc distribution using S3</a>) or through TestFlight. In this setup you are back to detecting the configuration at compile. Adding an additional configuration, however, is a multi step process:</p>
+<p>Go to your project <strong>Info</strong>, and under <strong>Configurations</strong>, create a new one by duplicating the Release one.</p>
+<p><img src="/images/build-config/create-configuration.png" alt=""></p>
+<p>Go to Build Settings and in Preprocessor Macros and add BETA=1 to that new Beta configuration (note that this is actually the place DEBUG=1 is being set for that Debug build).</p>
+<p><img src="/images/build-config/add-macro.png" alt=""></p>
+<p>Voila! You can now detect Release versus Beta build at compilation time. Other than the BETA flag, the builds are identical.</p>
+<p>Let’s launch Bugsee in Debug and Beta only:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#if ( DEBUG || BETA)</span></div><div class="line"><span class="preprocessor">#import "Bugsee/Bugsee.h"</span></div><div class="line"><span class="preprocessor">#endif</span></div><div class="line"></div><div class="line">....</div><div class="line"></div><div class="line">- (BOOL)application:(UIApplication *)application</div><div class="line">    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {</div><div class="line">    <span class="comment">// ...other initialization code</span></div><div class="line"><span class="preprocessor">#if (DEBUG || BETA)</span></div><div class="line">    [Bugsee launchWithToken:@<span class="string">"your app token"</span>];</div><div class="line"><span class="preprocessor">#endif</span></div></pre></td></tr></table></figure>
+
+<p>Let’s use that CocoaPods trick to install the library only in Debug and Beta builds:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pod <span class="string">'Bugsee'</span>, <span class="symbol">:configurations</span> =&gt; [<span class="string">'Debug'</span>, <span class="string">'Beta'</span>]</div></pre></td></tr></table></figure>
+
+<p>The only thing left to do is to build the Beta configuration.</p>
+<p>First of all, go to <strong>Product-&gt;Schemes-&gt;Edit</strong> Scheme and click on Duplicate Scheme button. Name it properly (if your original scheme was called MyApp, call the new one MyApp Beta).</p>
+<p><img src="/images/build-config/duplicate-scheme.png" alt=""></p>
+<p>Edit the new scheme, and change the configuration of the Archive step to use Beta configuration.</p>
+<p><img src="/images/build-config/scheme-configuration.png" alt=""></p>
+<p>That’s it. Now you have two schemes, one for Appstore and one for Beta releases. As long as you are developing and using <strong>Build &amp; Run</strong>, they are identical, and it doesn’t matter which one you are using. It matters though when you do <strong>Archive</strong>, depending whether you want to produce and IPA for App Store or Ad-Hoc, remember to switch to the right one.</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="Why?">Why?</h2>
+<p>Applications today are rarely being built without 3rd party libraries and SDKs. There are libraries for integrati]]>
+    </summary>
+    
+      <category term="ios, build, tesflight" scheme="http://finik.net/tags/ios-build-tesflight/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[iOS Ad-hoc distribution using Amazon S3]]></title>
