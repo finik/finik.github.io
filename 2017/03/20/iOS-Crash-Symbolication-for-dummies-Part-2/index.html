@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS Crash Symbolication for dummies Part 2 | Dmitry Fink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="In the previous post, we’ve learned what is symbolication process and why it is needed. In this post we will dive deeper and learn how to make sure a dSYM file is generated and see how we can manually">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS Crash Symbolication for dummies Part 2">
+<meta property="og:url" content="http://finik.net/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/">
+<meta property="og:site_name" content="Dmitry Fink">
+<meta property="og:description" content="In the previous post, we’ve learned what is symbolication process and why it is needed. In this post we will dive deeper and learn how to make sure a dSYM file is generated and see how we can manually">
+<meta property="og:image" content="/images/symbolication2/generate.png">
+<meta property="og:image" content="/images/symbolication2/format.png">
+<meta property="og:image" content="/images/symbolication2/strip.png">
+<meta property="og:image" content="/images/symbolication2/project.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS Crash Symbolication for dummies Part 2">
+<meta name="twitter:description" content="In the previous post, we’ve learned what is symbolication process and why it is needed. In this post we will dive deeper and learn how to make sure a dSYM file is generated and see how we can manually">
+<meta name="twitter:creator" content="@finik">
+<link rel="publisher" href="102647827171370750000">
+
+  
+    <link rel="alternative" href="/atom.xml" title="Dmitry Fink" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17764337-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Dmitry Fink</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/resume">Resume</a>
+        
+          <a class="main-nav-link" href="/contact">Contact</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://finik.net"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-iOS-Crash-Symbolication-for-dummies-Part-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/" class="article-date">
+  <time datetime="2017-03-20T23:18:04.000Z" itemprop="datePublished">Mar 20 2017</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      iOS Crash Symbolication for dummies Part 2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>In the <a href="/2017/03/08/iOS-Crash-Symbolication-for-dummies-Part-1/">previous post</a>, we’ve learned what is symbolication process and why it is needed. In this post we will dive deeper and learn how to make sure a dSYM file is generated and see how we can manually use it to symbolicate crash reports.</p>
+<h2 id="How_do_I_make_sure_dSYM_is_actually_being_generated?">How do I make sure dSYM is actually being generated?</h2>
+<p>XCode has several settings that may affect dSYM generation, let’s review them one by one.</p>
+<p>First of all, let’s make sure that debug information is being generated:</p>
+<p><img src="/images/symbolication2/generate.png" alt=""></p>
+<p>Let’s instruct XCode to put the debug symbols in a separate dSYM file:</p>
+<p><img src="/images/symbolication2/format.png" alt=""></p>
+<p>By default that option is only selected for release builds, but not for debug builds. In most cases it is enough, as most commonly debug builds are only used by the developer while debugging their own application while being attached to XCode. However when trying out symbolication or when there is a chance a debug build is going to end up on a device of a colleague who is going to test it, we may still opt to have the dSYM file to be able to analyze the crashes.</p>
+<p>And last, but not the least important:</p>
+<p><img src="/images/symbolication2/strip.png" alt=""></p>
+<p>This option is not important for the symbolication process itself, but it is important to check it, as it instructs XCode to strip the debug symbols from the binary file itself, the file we are going to distribute to App Store. It both affects the size of the distributed application, but more importantly, leaving debug information in the application makes our competitors’ life much easier.</p>
+<p>With all these options checked, our next build should produce a dSYM file (or rather a series of dSYM files, one for our main application and one for each framework we build as part of our application). The files are located in the products folder. Apple made it quite tricky to find it, one common method is to look at the build logs and copy the path from there. There is an alternative way through XCode:</p>
+<ul>
+<li>Go to File-&gt;Project settings</li>
+<li>Click on Advanced</li>
+<li>Clicking on that small arrow will reveal the product folder in Finder</li>
+</ul>
+<p><img src="/images/symbolication2/project.png" alt=""></p>
+<blockquote>
+<p>Note: XCode 8.2 was used at the time of writing the post, the options may differ in other XCode versions.</p>
+</blockquote>
+<h2 id="What_can_I_do_with_a_crash_report_and_a_dSYM_file?">What can I do with a crash report and a dSYM file?</h2>
+<p>Let’s say we have that raw crash report with addresses and a dSYM file that we know is the matching one. What can we do with it?<br>The address and the dSYM file should be enough to extract debug information about that address, but there is still one element missing. We need to know the exact address that image was loaded at for that specific crash. The reason for this is operating system randomizes the offset at which programs are being loaded every time they are ran. The technique is usually called <a href="https://en.wikipedia.org/wiki/Address_space_layout_randomization" target="_blank" rel="external">ASLR</a> (Address Space Layout Randomization) and it is mostly done for security reasons, as it prevents exploits that rely on a specific layout of the program at runtime.</p>
+<p>This is where the list of all the loaded images comes into play. If you are dealing with raw crash reports generated by XCode, it can be found<br>in the “Binary images” section of the text file.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Binary Images:</div><div class="line">       <span class="number">0x10007C000</span> -        <span class="number">0x1002C3FFF</span> +MyApplication arm64   /var/containers/Bundle/Application/MyApplication.app/MyApplication</div><div class="line">       <span class="number">0x184158000</span> -        <span class="number">0x184159FFF</span>  libSystem.B.dylib arm64   /usr/lib/libSystem.B.dylib</div><div class="line">       <span class="number">0x18415A000</span> -        <span class="number">0x1841AFFFF</span>  libc++<span class="string">.1</span>.dylib arm64   /usr/lib/libc++<span class="string">.1</span>.dylib</div><div class="line">       <span class="number">0x1841B0000</span> -        <span class="number">0x1841D0FFF</span>  libc++abi.dylib arm64   /usr/lib/libc++abi.dylib</div><div class="line">       <span class="number">0x1841D4000</span> -        <span class="number">0x1845ADFFF</span>  libobjc.A.dylib arm64   /usr/lib/libobjc.A.dylib</div><div class="line">       <span class="number">0x184871000</span> -        <span class="number">0x184871FFF</span>  libvminterpose.dylib arm64   /usr/lib/system/libvminterpose.dylib</div><div class="line">       <span class="number">0x184872000</span> -        <span class="number">0x184898FFF</span>  libxpc.dylib arm64   /usr/lib/system/libxpc.dylib</div><div class="line">       <span class="number">0x184899000</span> -        <span class="number">0x184AB3FFF</span>  libicucore.A.dylib arm64   /usr/lib/libicucore.A.dylib</div><div class="line">       <span class="number">0x184AB4000</span> -        <span class="number">0x184AC4FFF</span>  libz<span class="string">.1</span>.dylib arm64   /usr/lib/libz<span class="string">.1</span>.dylib</div><div class="line">       <span class="number">0x185675000</span> -        <span class="number">0x1859F9FFF</span>  CoreFoundation arm64   /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation</div></pre></td></tr></table></figure>
+
+<p>Now that we know that at that particular run our application has been loaded at 0x10007C000, we can use the atos tool that comes with XCode to try to extract more info:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ atos -o MyApplication.app.dSYM -l <span class="number">0x10007C000</span> <span class="number">0x100117f48</span></div><div class="line">getElementFromArray (<span class="keyword">in</span> MyApplication.app.dSYM) (AppDelegate.m:<span class="number">22</span>)</div></pre></td></tr></table></figure>
+
+<p>That seems to be working. But that is a lot of tedious work if we do it manually. If we want to get nice human readable snapshot of the callstack, then for each address, we have to:</p>
+<ul>
+<li>Find the image that address is corresponding to in that particular run of the application (remember the ASLR?).</li>
+<li>Get the start address for that image</li>
+<li>Locate the dSYM file for that specific image. (Where do we get dSYM files for all the system images? *)</li>
+<li>Use atos tool to translate the address into a human readable location.</li>
+</ul>
+<p>When you deal with XCode raw crash reports, there is a perl script that’s shipped in one of the frameworks that can partially automate this flow.<br>In XCode 8.2 it can be found in:<br>/Applications/Xcode.app/Contents/SharedFrameworks/DVTFoundation.framework/Versions/A/Resources/symbolicatecrash<br>but it may vary from version to version.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="keyword">find</span> /Applications/Xcode.app -name symbolicatecrash -<span class="built_in">type</span> <span class="keyword">f</span></div></pre></td></tr></table></figure>
+
+<p>Now we can try to symbolicate the whole report at once:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">path<span class="regexp">/to/</span>symbolicatecrash <span class="regexp">/path/</span>to<span class="regexp">/MyApplication_2016-12-19_Device.crash /</span>path<span class="regexp">/to/</span>MyApplication.app.dSYM</div></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>In fact, locating dSYM files for system frameworks is major pain point for most developers. These dSYM files are usually located in ~/Library/Developer/Xcode/iOS\ DeviceSupport/ folder. However this folder is populated by XCode and only contains symbols for iOS versions and architectures that were attached to that particular XCode. (i.e if you’ve never debugged an armv7 device running iOS 8.2 to your Mac, you will not have iOS 8.2 armv7 symbols on this machine.) Good news is starting with iOS 10, Apple dropped the support for all old armv7 devices, and both arm64 and armv7s support files are shipped with iOS regardless of the arch of the device itself. So it is enough now to attach any device with iOS 10.2 to XCode to have support files both for armv7s and arm64 flavors. It is still practically impossible to “collect them all”, however, especially when Apple sometimes releases iOS beta builds daily.</li>
+</ul>
+</blockquote>
+<p>With this script in hand we know how to completely symbolicate one single crash. And that is assuming we got the crash report itself, all the dSYM files, all the tools and a lot of patience. In the real world however, this approach becomes impractical really quickly, as our app is deployed on thousands (hopefully millions!) of devices, all having different iOS versions and architectures. And in order to have a complete solution we have to:</p>
+<ul>
+<li>Have system frameworks dSYM files for all available iOS versions and architectures out there</li>
+<li>Be able to match and combine similar crashes, even if they have somewhat different stack traces, but share identical root cause</li>
+<li>Automatically catalogue dSYM files for each application and framework build we produce</li>
+<li>Detect, register and process every crash from every user and device</li>
+<li>Analyze app crash statistics and trends per device, iOS version, App version, etc.</li>
+</ul>
+<p>That is exactly where 3rd party crash reporting services come into the picture. Crash reporting can do that and much more, leaving us time to focus on building the app itself instead of spending precious time on building infrastructure and toolchains for debugging and analysis. Crash reporting services differ when it comes to quality of the stack trace reports, as well additional contextual information they provide about the crashes. <a href="https://www.bugsee.com" target="_blank" rel="external">Bugsee</a> crash reporting has recently been ranked the highest among all iOS crash reporting services when it comes to accuracy and the amount of details in the report. Bugsee doesn’t stop there, however, it also presents video of user actions, console logs and network traffic that preceded the crash.</p>
+<p>In the <a href="">next post</a> of the series, we will be diving deeper into advanced topics of symbolication such as Bitcode.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://finik.net/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/" data-id="wr50chdpqbuihblz" class="article-share-link">Share</a>
+      
+        <a href="http://finik.net/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios-symbolication-dsym/">ios, symbolication, dsym</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/03/08/iOS-Crash-Symbolication-for-dummies-Part-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">iOS Crash Symbolication for dummies Part 1</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+      <div class="widget-wrap">
+    <h3 class="widget-title">About</h3>
+    <div class="widget">
+      <img src="/images/portrait.jpg"><br>
+      CTO and Founder of <a href="https://www.bugsee.com">Bugsee</a>. In previous life hacked and managed teams at Amazon, TI, Palm/HP, Zoran, Intel, Dishero<hr>
+      <a href="https://linkedin.com/in/finik">https://linkedin.com/in/finik</a><br>
+      <a href="https://angel.co/finik">https://angel.co/finik</a><br>
+      <a href="https://twitter.com/finik">https://twitter.com/finik</a><br>
+      <a href="https://github.com/finik">https://github.com/finik</a><br>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/">iOS Crash Symbolication for dummies Part 2</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/08/iOS-Crash-Symbolication-for-dummies-Part-1/">iOS Crash Symbolication for dummies Part 1</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/30/Managing-iOS-build-configurations/">Managing iOS build configurations</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/28/iOS-Ad-hoc-distribution-using-Amazon-S3/">iOS Ad-hoc distribution using Amazon S3</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/30/bidi/">Typing bidi text</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/amazon/">amazon</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws-build-ios/">aws, build, ios</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bidi/">bidi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/build/">build</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-beanstalk/">elastic beanstalk</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hebrew/">hebrew</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-build-tesflight/">ios, build, tesflight</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-symbolication-dsym/">ios, symbolication, dsym</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/">kernel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/octopress/">octopress</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rant/">rant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rss/">rss</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/amazon/" style="font-size: 13.33px;">amazon</a><a href="/tags/aws/" style="font-size: 13.33px;">aws</a><a href="/tags/aws-build-ios/" style="font-size: 13.33px;">aws, build, ios</a><a href="/tags/bidi/" style="font-size: 13.33px;">bidi</a><a href="/tags/blog/" style="font-size: 20.00px;">blog</a><a href="/tags/build/" style="font-size: 13.33px;">build</a><a href="/tags/elastic-beanstalk/" style="font-size: 13.33px;">elastic beanstalk</a><a href="/tags/git/" style="font-size: 13.33px;">git</a><a href="/tags/google/" style="font-size: 13.33px;">google</a><a href="/tags/hebrew/" style="font-size: 13.33px;">hebrew</a><a href="/tags/hexo/" style="font-size: 13.33px;">hexo</a><a href="/tags/ios/" style="font-size: 10.00px;">ios,</a><a href="/tags/ios-build-tesflight/" style="font-size: 13.33px;">ios, build, tesflight</a><a href="/tags/ios-symbolication-dsym/" style="font-size: 16.67px;">ios, symbolication, dsym</a><a href="/tags/kernel/" style="font-size: 13.33px;">kernel</a><a href="/tags/nginx/" style="font-size: 13.33px;">nginx</a><a href="/tags/octopress/" style="font-size: 13.33px;">octopress</a><a href="/tags/rant/" style="font-size: 13.33px;">rant</a><a href="/tags/rss/" style="font-size: 13.33px;">rss</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2010/10/">October 2010</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- test -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-5367834286297597"
+     data-ad-slot="1326752408"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Dmitry Fink<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/resume" class="mobile-nav-link">Resume</a>
+  
+    <a href="/contact" class="mobile-nav-link">Contact</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'finiknet';
+  
+  var disqus_url = 'http://finik.net/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+  </div>
+</body>
+</html>
