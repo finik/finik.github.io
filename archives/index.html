@@ -82,6 +82,99 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-Puzzle" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/24/Puzzle/" class="article-date">
+  <time datetime="2018-12-24T08:17:17.000Z" itemprop="datePublished">Dec 24 2018</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/24/Puzzle/">Auzzle Puzzle</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Below are my notes and a quick brute force scanning of the rotating puzzle called Auzzle by Ilya Osipov.</p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/woodpic.png" alt="Woodpic"></p>
+<p><a href="https://www.facebook.com/AuzzlePuzzle/" target="_blank" rel="external">https://www.facebook.com/AuzzlePuzzle/</a></p>
+<p><a href="https://www.youtube.com/watch?v=c7eOGJ46Mu4" target="_blank" rel="external">https://www.youtube.com/watch?v=c7eOGJ46Mu4</a></p>
+<p>Disclaimer: I do not own one. All the work below is my attempt to analyze it after having the pleasure to see and play with a prototype for a few minutes.</p>
+<h2 id="Theory">Theory</h2>
+<p>At first glance the puzzle looks quite overwhelming. It consists of 24 magnets, arranged in pairs, and depending on the polarity of the magnets in the pair, they are either pulled towards the middle, or pushed towards the outer edges. The wooden or plastic pieces holding these magnets can be rotated in multiple directions, constantly changing the matching between the magnets. The puzzle is solved only when all 12 pairs of magnets are pulled towards the middle.</p>
+<p>After further inspection, however, it becomes clear that the things are not as bad as they seem. There are actually only 8 unique solid wooden or plastic pieces, each one containing 3 magnets. In other words, only 4 pairs of 2 pieces each. The placement of the magnets within each piece is unique, we can actually represent it as a binary encoding, 1 if the magnets ‘+’ is pointing towards the center, and 0 if ‘+’ points towards the outer edge. Unsurprisingly, 3 bits is the exact number required to encode 8 unique pieces: #0=000, #1=001, #2=010, #3=011, #4=100, #5=101, #6=110, #7=111.</p>
+<p>Therefore, each piece has only one and only one matching piece resulting in all 3 pairs of magnets pulling towards the middle.</p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/magnets.jpg" alt="Magnets"></p>
+<p>If we keep thinking in binary, in order for a pair of pieces to be each others matching counterparts, the following condition has to be true:</p>
+<p><strong>A xor reversed(B) == 7</strong></p>
+<p><code>It is easy to overlook the &quot;reversed&quot; part, but it is important! We encode every piece in the same way, 1 always means &#39;+&#39; pole is oriented towards the center. Pieces will change their orientation, sometimes they will face up and sometimes down, but when faced each other, we can&#39;t operate directly on their encodings, we must remember the top one is upside down (i.e piece 001 (1) will atract magnets in the 110 (6) formation, however the actual encoding of that opposing top piece is 011 (3))</code></p>
+<p>In other words, in order to solve the puzzle, piece #0 must be placed against piece #7, #4 against #6, #1 against #3 and #2 against #5.</p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/solution.jpg" alt="Solution"></p>
+<h3 id="Total_combinations">Total combinations</h3>
+<p>Total amount of permutations for 8 unique pieces is 8! = 40,320</p>
+<p>We also need to multiply it by 2 to account for two possible states of the outer shell in relation to the internal mechanism.</p>
+<p>However if we take any state of the puzzle, whether we rotate it by 180 degrees along X or rotate it in any of the 4 orentations along axis Y, it is still the same state, we don’t want to count each state 8 times, so we divide by 8 respectively.</p>
+<p><strong>Total number of combinations: 8! x 2 / 8 = 10,080</strong></p>
+<p>What about possible solutions?</p>
+<p>The picture above shows only one possible solution of the puzzle. However it immediately becomes clear that the puzzle has many possible solutions: a) within each pair, the two pieces can swap places; b) the position of the pairs relative to one another can change and the puzzle would still remain solved. </p>
+<p>Permitations to place 2 matching pieces within a pair: 2</p>
+<p>We have 4 of these pairs, so total number of permutations is 2^4</p>
+<p>Number of ways to place pairs in relation to one another: 4!</p>
+<p>Similarly to how we did it before, we multiple by 2 to account for 2 possible states of the outer edge.</p>
+<p>And, again, divide by 8 to account for rotation of the whole construction and avoid counting each state as 8 different ones.</p>
+<p><strong>Total number of solutions: 4! x 2^4 x 2 / 8 = 96</strong></p>
+<p><strong>Observation #1</strong>: It is possible to screw up the assembly of the puzzle and insert magnets in a way that will result in pieces with identical encodings existing within the same puzzle. The number of possible solved combinations will increase, the total number of combinations will decrease. Ouch!</p>
+<p><strong>Observation #2</strong>: In a proper puzzle that actually has 8 uniquely encoded pieces, it is IMPOSSIBLE to get to a state where all the 12 pairs are pushed towards the outer edges. Piece #0 (000) will only push all 3 magnets when paired with another #0, and since there should be only one #0 piece in the puzzle that should never happen. This is true for any encoding that is a ‘palyndrome’ in a 3bit range (i.e #0, #2, #5, #7) (see <a href="#4bit">4bit</a> variation for a way to possibly do it with 4 bits)</p>
+<h2 id="Practice">Practice</h2>
+<p>In order to validate my theory and also calculate the <strong>God’s Number</strong> (maximum number of moves God has to perform to get to a solved state), I’ve written a simple simulator that tries to scan all possible states by doing it in reverse, starting with a solved state and traversing the tree of all the possible states. The code can be found in <a href="https://github.com/finik/AuzzlePuzzle/blob/master/sim.py" target="_blank" rel="external">sim.py</a>. It starts at the at the initial solved state shown in the picture above, then performs a BFS’ish scan of the whole space by performing all possible operations. For every state, to avoid double counting rotations (remember the division by 8), it rotates the whole puzzle to a <strong>canonical</strong> state where piece #0 is inside the lower left quadrant. </p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">python sim.py</div><div class="line">Total combinations: <span class="number">10080</span>, Solutions: <span class="number">96</span>, Max path <span class="built_in">to</span> solution: <span class="number">10</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">0</span>: <span class="number">96</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">1</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">2</span>: <span class="number">288</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">3</span>: <span class="number">480</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">4</span>: <span class="number">768</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">5</span>: <span class="number">1824</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">6</span>: <span class="number">2688</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">7</span>: <span class="number">3264</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">8</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">9</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">10</span>: <span class="number">96</span></div></pre></td></tr></table></figure>
+
+<p>I am sure it can be done much more efficiently, but that was a quick and dirty exercise and it proves my theoretical calulations (the numbers match!). It also reveals the God’s Number for Auzzle, that number is 10! 10 moves is all it takes to get from the worst position to one of the 96 solved states.</p>
+<h2 id="Actually_solving_it">Actually solving it</h2>
+<p>TBD :)</p>
+<p>Given the total number of combinations and the total number of solutions, it is actually pretty easy to get to one of the solved states just by fidgeting with the puzzle enough time.</p>
+<p>If we mark the matching pieces with 4 different colors like in the picture above, the puzzle is trivial to solve systematically. In fact, we can think of it as a subset of a 2x2x2 cube where one axis rotates only by 180 and another axis doesn’t rotate at all. </p>
+<p>However, individual pieces are not marked and the only thing that can be observed externally by looking at the magnets is the result of the interaction between two adjustent pieces (representing <strong>A xor reversed(B)</strong>). This  makes it much more challenging. I would love to get get my hands on one to see if there is a way to properly formulate an algorithm for a solution.</p>
+<h2 id="Variations">Variations</h2>
+<h3 id="4bit">4bit</h3>
+<p>In this variant, we have more possible encodings (16) than needed to represent 8 unique pieces, however that allows us to skip encodings that require duplicated pieces:</p>
+<p>a) Avoid encodings #0, #6, #9 and #15 (#0 will only fully push away another #0, etc)</p>
+<p>b) Avoid encodings #5, #3, #10, #12 (#5 will only fully pull another #5, etc)</p>
+<p>That leaves with 8 encodings that do not have any of the issues above, each one of them has a proper counterpart for pulling all 4 of its magnets and and another one of pushing all 4. These encodings are: #1, #2, #4, #7, #8, #11, #13 and #14. And the actual matching pairs for both solutions are as follows:</p>
+<p><strong>All magnets pulled inside:</strong> (#1, #7), (#8, #14), (#2, #11), (#4, #13)</p>
+<p><strong>All magnets pushed outside:</strong> (#1, #8), (#2, #4), (#7, #14), (#11, #13)</p>
+<p>It would be logical to assume the total amount of combination will not change (the amount of pieces did not change, it is still 8). The amount of solution states should probably double to 192 (96 inside and 96 outside), and the God’s number should probably decrease by 1 as well (worst case should probably be only 9 moves away from one of the solved states). To test it, I’ve duplicated the simulation and modified it to work with the 4bit encodings above, the code can be found <a href="https://github.com/finik/AuzzlePuzzle/blob/master/sim-4bits.py" target="_blank" rel="external">sim-4bit.py</a></p>
+<p>Results:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">python sim-<span class="number">4</span>bits.py</div><div class="line">Total combinations: <span class="number">10080</span>, Solutions: <span class="number">192</span>, Max path <span class="built_in">to</span> solution: <span class="number">9</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">0</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">1</span>: <span class="number">368</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">2</span>: <span class="number">512</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">3</span>: <span class="number">800</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">4</span>: <span class="number">1184</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">5</span>: <span class="number">2496</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">6</span>: <span class="number">2816</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">7</span>: <span class="number">1616</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">8</span>: <span class="number">48</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">9</span>: <span class="number">48</span></div></pre></td></tr></table></figure>
+
+<p>Yeap, we guessed right!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://finik.net/2018/12/24/Puzzle/" data-id="zqx933q5wfdpw5t4" class="article-share-link">Share</a>
+      
+        <a href="http://finik.net/2018/12/24/Puzzle/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puzzles-hobby/">puzzles, hobby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-iOS-Crash-Symbolication-for-dummies-Part-2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/" class="article-date">
@@ -308,7 +401,7 @@ ga('send', 'pageview');
 <p>Fortunately, it is easy to differentiate between App Store and Testflight installations in run-time and initialize Bugsee only when appropriate:</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application</div><div class="line">    didFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions {</div><div class="line">    <span class="comment">// ...other initialization code</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> ([[[[<span class="built_in">NSBundle</span> mainBundle] appStoreReceiptURL] lastPathComponent] isEqualToString:<span class="string">@"sandboxReceipt"</span>]) {</div><div class="line">        <span class="comment">// We are in TestFlight, enable Bugsee!</span></div><div class="line">        [Bugsee launchWithToken:<span class="string">@"your app token"</span>];</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
 
-<h3 id="Debug_vs-_Release_vs-_Beta">Debug vs. Release vs. Beta</h3>
+<h2 id="Debug_vs-_Release_vs-_Beta">Debug vs. Release vs. Beta</h2>
 <p>In this setup you create and maintain three build flavors. Distribution method of the Beta flavor is not important, it can be done either through Ad-hoc distribution (see our <a href="/2016/08/28/iOS-Ad-hoc-distribution-using-Amazon-S3/">tutorial on building in house Ad-hoc distribution using S3</a>) or through TestFlight. In this setup you are back to detecting the configuration at compile. Adding an additional configuration, however, is a multi step process:</p>
 <p>Go to your project <strong>Info</strong>, and under <strong>Configurations</strong>, create a new one by duplicating the Release one.</p>
 <p><img src="/images/build-config/create-configuration.png" alt=""></p>
@@ -673,97 +766,10 @@ ga('send', 'pageview');
 
 
   
-    <article id="post-multiple-working-folders-with-single-git-repository" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2010/10/24/multiple-working-folders-with-single-git-repository/" class="article-date">
-  <time datetime="2010-10-24T20:52:00.000Z" itemprop="datePublished">Oct 24 2010</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2010/10/24/multiple-working-folders-with-single-git-repository/">Multiple working folders with single GIT repository</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="The_problem">The problem</h2>
-<p>As much as I love GIT, there are several design decisions that make my everyday work really difficult. One of such design flaws is making the repository and the working folder tightly coupled. It is a serious problem for every developer who is frequently switching between several product/topic branches of the same project.</p>
-<p>Git gives you two options to deal with this:</p>
-<ul>
-<li>Create different local clones of the repository and checkout different branch in every one of them.</li>
-<li>Do all your work in one local repository, every time you have a task switch ether stash or commit your changes on the current branch and checkout a different one.</li>
-</ul>
-<p>As I quickly learned both solutions were not very practical for what I was doing. As a linux kernel developer in a company that actually ships multiple linux based products, I eventually found myself working and supporting several product branches, sometimes based on different versions of the kernel. One branch could be plain vanilla kernel.org kernel based on 2.6.32, another one could be an old product running of 2.6.24 with tons of additional architecture specific code that came from a vendor, etc. Both approaches had very serious drawbacks:</p>
-<ul>
-<li>Cloning a kernel repository for each product/branch would take more disk space (every copy of kernel repository is about 500MB), even though disk space is cheap today, you have to admit it doesn’t make sense to keep several copies of the same binary blob on your disk (UPDATE 10/25/2010: That is actually not true, cloning locally from the existing repository is done via hard links, so no extra space is wasted). But the biggest problem is synchronizing all these local repositories. If I need to merge branches or cherry-pick individual commits between them I end up pushing and pulling the changes through a shared remote repository, or connecting these local repositories as remotes to one another.</li>
-<li>Doing all your work in one repository is not an option either, if you ever tried to checkout a 2.6.24 linux kernel branch while already having 2.6.35 in your folder you’d understand why, it takes time. When you are multi-tasking you usually try to minimize the overhead of each switch and having to stash your current work or create dummy commits every time you switch doesn’t seem like the right way to do it. Another drawback to this approach is there is no convenient way to do a nice visual diff between files and folders on two branches, yes, it’s doable, but it is not as easy as running “meld folderA folderB”.</li>
-</ul>
-<h2 id="The_solution">The solution</h2>
-<p>I’m not going to take credit for the method I am going to show you, I wasn’t the one who came up with it, Ed, one of the guys on my team did. Ed actually developed whole set of useful scripts for kernel development involving frequent switching between product branching, but the part about branching and multiple working folders is applicable to other projects as well, so that’s what I want to share with you.<br>Actually the trick is quite trivial, we use our knowledge of git internals and unix symbolic links to achieve what we want. All we wanted is to have one repository and multiple working folders associated with it, so lets do just that. That is how our final folder structure will look like:</p>
-<pre><code>project
-+-.repo
-  +-.git
-    +-branches
-    +-config
-    +-description
-    +-HEAD
-    +-hooks
-    +-objects
-    +-info
-    +-packed-refs
-    +-refs
-+-branchA
-  +-.git
-    +-branches<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/.git/branches
-    +-config<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/config
-    +-description
-    +-HEAD
-    +-index
-    +-hooks<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/hooks
-    +-objects<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/objects
-    +-info<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/info
-    +-packed-refs<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/packed-refs
-    +-refs<span class="function"> -&gt;</span> ..<span class="regexp">/../</span>.repo/refs
-+-branchB
-+-branchC
-...
-etc
-</code></pre><p>We created one wrapper “project” folder, one master GIT repository in .repo and a bunch of branchX folders. Each one of these folders is a legal GIT folder by itself, however it doesn’t keep its own config and objects/refs repositories, it links to the one in .repo instead. It does keep a private local version of HEAD, index (staging area) and the whole working folder. Every manipulation on the database performed in any of the branch folders is immediately visible in others (commits, branches, tags, remote changes), context switching is just a matter of changing folders now.</p>
-<p>This is how we initialize this structure for the first time time:</p>
-<figure class="highlight bash"><figcaption><span>init.sh</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">mkdir .repo</div><div class="line"><span class="built_in">pushd</span> .repo</div><div class="line"></div><div class="line">git init</div><div class="line">git remote add origin git://some.remote.url.../project.git</div><div class="line">git fetch origin</div><div class="line"></div><div class="line"><span class="built_in">popd</span></div><div class="line"></div><div class="line">newfolder.sh branchA</div><div class="line"><span class="built_in">pushd</span> branchA</div><div class="line">git checkout -b branchA origin/branchA</div><div class="line"><span class="built_in">popd</span></div><div class="line"></div><div class="line">newfolder.sh branchB</div><div class="line"><span class="built_in">pushd</span> branchB</div><div class="line">git checkout -b branchB origin/branchB</div><div class="line"><span class="built_in">popd</span></div></pre></td></tr></table></figure>
-
-<p>The script we used to automate creation of a new working folder (newfolder.sh). We can call it as many times as we want an whenever we need to create a new folder.</p>
-<figure class="highlight bash"><figcaption><span>newfolder.sh</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$1</span>"</span> == <span class="string">""</span> ]; <span class="keyword">then</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"Need to specify target."</span></div><div class="line">	<span class="keyword">return</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">TARGET=<span class="variable">$1</span></div><div class="line">mkdir <span class="variable">$TARGET</span></div><div class="line"><span class="built_in">pushd</span> <span class="variable">$TARGET</span></div><div class="line"></div><div class="line">git init</div><div class="line"></div><div class="line"><span class="built_in">pushd</span> .git</div><div class="line"></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> branches config hooks info objects refs packed-refs ; <span class="keyword">do</span></div><div class="line">	rm -rf <span class="variable">$i</span></div><div class="line">	ln -sf ../../.repo/.git/<span class="variable">$i</span> <span class="variable">$i</span></div><div class="line"><span class="keyword">done</span></div><div class="line"></div><div class="line"><span class="built_in">popd</span> <span class="comment"># .git</span></div><div class="line"><span class="built_in">popd</span> <span class="comment"># $TARGET</span></div></pre></td></tr></table></figure>
-
-<p>Enjoy! I find this method very useful already, but I’ll be glad to hear some feedback since I am sure someone will come up with a way to polish it and make it even better.</p>
-<p><strong>Update 10/25/01</strong>: I wrote the post yesterday, and today I accidentally found out that the trick described above for a while has been a part of a standard git distribution and can be found in contrib/workdir/git-new-workdir :)</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://finik.net/2010/10/24/multiple-working-folders-with-single-git-repository/" data-id="utsqqu16121m51v6" class="article-share-link">Share</a>
-      
-        <a href="http://finik.net/2010/10/24/multiple-working-folders-with-single-git-repository/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/build/">build</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kernel/">kernel</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
+    </nav>
   
 </section>
         
@@ -789,6 +795,10 @@ etc
       <ul>
         
           <li>
+            <a href="/2018/12/24/Puzzle/">Auzzle Puzzle</a>
+          </li>
+        
+          <li>
             <a href="/2017/03/20/iOS-Crash-Symbolication-for-dummies-Part-2/">iOS Crash Symbolication for dummies Part 2</a>
           </li>
         
@@ -804,10 +814,6 @@ etc
             <a href="/2016/08/28/iOS-Ad-hoc-distribution-using-Amazon-S3/">iOS Ad-hoc distribution using Amazon S3</a>
           </li>
         
-          <li>
-            <a href="/2014/10/30/bidi/">Typing bidi text</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -817,7 +823,7 @@ etc
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/amazon/">amazon</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws-build-ios/">aws, build, ios</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bidi/">bidi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/build/">build</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-beanstalk/">elastic beanstalk</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hebrew/">hebrew</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-build-tesflight/">ios, build, tesflight</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-symbolication-dsym/">ios, symbolication, dsym</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/">kernel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/octopress/">octopress</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rant/">rant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rss/">rss</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/amazon/">amazon</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws-build-ios/">aws, build, ios</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bidi/">bidi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/build/">build</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-beanstalk/">elastic beanstalk</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hebrew/">hebrew</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-build-tesflight/">ios, build, tesflight</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-symbolication-dsym/">ios, symbolication, dsym</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/">kernel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/octopress/">octopress</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/puzzles-hobby/">puzzles, hobby</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rant/">rant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rss/">rss</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -826,7 +832,7 @@ etc
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/amazon/" style="font-size: 13.33px;">amazon</a><a href="/tags/aws/" style="font-size: 13.33px;">aws</a><a href="/tags/aws-build-ios/" style="font-size: 13.33px;">aws, build, ios</a><a href="/tags/bidi/" style="font-size: 13.33px;">bidi</a><a href="/tags/blog/" style="font-size: 20.00px;">blog</a><a href="/tags/build/" style="font-size: 13.33px;">build</a><a href="/tags/elastic-beanstalk/" style="font-size: 13.33px;">elastic beanstalk</a><a href="/tags/git/" style="font-size: 13.33px;">git</a><a href="/tags/google/" style="font-size: 13.33px;">google</a><a href="/tags/hebrew/" style="font-size: 13.33px;">hebrew</a><a href="/tags/hexo/" style="font-size: 13.33px;">hexo</a><a href="/tags/ios/" style="font-size: 10.00px;">ios,</a><a href="/tags/ios-build-tesflight/" style="font-size: 13.33px;">ios, build, tesflight</a><a href="/tags/ios-symbolication-dsym/" style="font-size: 16.67px;">ios, symbolication, dsym</a><a href="/tags/kernel/" style="font-size: 13.33px;">kernel</a><a href="/tags/nginx/" style="font-size: 13.33px;">nginx</a><a href="/tags/octopress/" style="font-size: 13.33px;">octopress</a><a href="/tags/rant/" style="font-size: 13.33px;">rant</a><a href="/tags/rss/" style="font-size: 13.33px;">rss</a>
+      <a href="/tags/amazon/" style="font-size: 13.33px;">amazon</a><a href="/tags/aws/" style="font-size: 13.33px;">aws</a><a href="/tags/aws-build-ios/" style="font-size: 13.33px;">aws, build, ios</a><a href="/tags/bidi/" style="font-size: 13.33px;">bidi</a><a href="/tags/blog/" style="font-size: 20.00px;">blog</a><a href="/tags/build/" style="font-size: 13.33px;">build</a><a href="/tags/elastic-beanstalk/" style="font-size: 13.33px;">elastic beanstalk</a><a href="/tags/git/" style="font-size: 13.33px;">git</a><a href="/tags/google/" style="font-size: 13.33px;">google</a><a href="/tags/hebrew/" style="font-size: 13.33px;">hebrew</a><a href="/tags/hexo/" style="font-size: 13.33px;">hexo</a><a href="/tags/ios/" style="font-size: 10.00px;">ios,</a><a href="/tags/ios-build-tesflight/" style="font-size: 13.33px;">ios, build, tesflight</a><a href="/tags/ios-symbolication-dsym/" style="font-size: 16.67px;">ios, symbolication, dsym</a><a href="/tags/kernel/" style="font-size: 13.33px;">kernel</a><a href="/tags/nginx/" style="font-size: 13.33px;">nginx</a><a href="/tags/octopress/" style="font-size: 13.33px;">octopress</a><a href="/tags/puzzles-hobby/" style="font-size: 13.33px;">puzzles, hobby</a><a href="/tags/rant/" style="font-size: 13.33px;">rant</a><a href="/tags/rss/" style="font-size: 13.33px;">rss</a>
     </div>
   </div>
 
@@ -835,7 +841,7 @@ etc
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2010/10/">October 2010</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2010/10/">October 2010</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -861,7 +867,7 @@ etc
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 Dmitry Fink<br>
+      &copy; 2018 Dmitry Fink<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

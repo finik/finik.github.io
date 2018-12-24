@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://finik.net/"/>
-  <updated>2017-12-17T00:31:05.695Z</updated>
+  <updated>2018-12-24T08:22:00.324Z</updated>
   <id>http://finik.net/</id>
   
   <author>
@@ -13,6 +13,75 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Auzzle Puzzle]]></title>
+    <link href="http://finik.net/2018/12/24/Puzzle/"/>
+    <id>http://finik.net/2018/12/24/Puzzle/</id>
+    <published>2018-12-24T08:17:17.000Z</published>
+    <updated>2018-12-24T08:21:00.596Z</updated>
+    <content type="html"><![CDATA[<p>Below are my notes and a quick brute force scanning of the rotating puzzle called Auzzle by Ilya Osipov.</p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/woodpic.png" alt="Woodpic"></p>
+<p><a href="https://www.facebook.com/AuzzlePuzzle/" target="_blank" rel="external">https://www.facebook.com/AuzzlePuzzle/</a></p>
+<p><a href="https://www.youtube.com/watch?v=c7eOGJ46Mu4" target="_blank" rel="external">https://www.youtube.com/watch?v=c7eOGJ46Mu4</a></p>
+<p>Disclaimer: I do not own one. All the work below is my attempt to analyze it after having the pleasure to see and play with a prototype for a few minutes.</p>
+<h2 id="Theory">Theory</h2>
+<p>At first glance the puzzle looks quite overwhelming. It consists of 24 magnets, arranged in pairs, and depending on the polarity of the magnets in the pair, they are either pulled towards the middle, or pushed towards the outer edges. The wooden or plastic pieces holding these magnets can be rotated in multiple directions, constantly changing the matching between the magnets. The puzzle is solved only when all 12 pairs of magnets are pulled towards the middle.</p>
+<p>After further inspection, however, it becomes clear that the things are not as bad as they seem. There are actually only 8 unique solid wooden or plastic pieces, each one containing 3 magnets. In other words, only 4 pairs of 2 pieces each. The placement of the magnets within each piece is unique, we can actually represent it as a binary encoding, 1 if the magnets ‘+’ is pointing towards the center, and 0 if ‘+’ points towards the outer edge. Unsurprisingly, 3 bits is the exact number required to encode 8 unique pieces: #0=000, #1=001, #2=010, #3=011, #4=100, #5=101, #6=110, #7=111.</p>
+<p>Therefore, each piece has only one and only one matching piece resulting in all 3 pairs of magnets pulling towards the middle.</p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/magnets.jpg" alt="Magnets"></p>
+<p>If we keep thinking in binary, in order for a pair of pieces to be each others matching counterparts, the following condition has to be true:</p>
+<p><strong>A xor reversed(B) == 7</strong></p>
+<p><code>It is easy to overlook the &quot;reversed&quot; part, but it is important! We encode every piece in the same way, 1 always means &#39;+&#39; pole is oriented towards the center. Pieces will change their orientation, sometimes they will face up and sometimes down, but when faced each other, we can&#39;t operate directly on their encodings, we must remember the top one is upside down (i.e piece 001 (1) will atract magnets in the 110 (6) formation, however the actual encoding of that opposing top piece is 011 (3))</code></p>
+<p>In other words, in order to solve the puzzle, piece #0 must be placed against piece #7, #4 against #6, #1 against #3 and #2 against #5.</p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/solution.jpg" alt="Solution"></p>
+<h3 id="Total_combinations">Total combinations</h3>
+<p>Total amount of permutations for 8 unique pieces is 8! = 40,320</p>
+<p>We also need to multiply it by 2 to account for two possible states of the outer shell in relation to the internal mechanism.</p>
+<p>However if we take any state of the puzzle, whether we rotate it by 180 degrees along X or rotate it in any of the 4 orentations along axis Y, it is still the same state, we don’t want to count each state 8 times, so we divide by 8 respectively.</p>
+<p><strong>Total number of combinations: 8! x 2 / 8 = 10,080</strong></p>
+<p>What about possible solutions?</p>
+<p>The picture above shows only one possible solution of the puzzle. However it immediately becomes clear that the puzzle has many possible solutions: a) within each pair, the two pieces can swap places; b) the position of the pairs relative to one another can change and the puzzle would still remain solved. </p>
+<p>Permitations to place 2 matching pieces within a pair: 2</p>
+<p>We have 4 of these pairs, so total number of permutations is 2^4</p>
+<p>Number of ways to place pairs in relation to one another: 4!</p>
+<p>Similarly to how we did it before, we multiple by 2 to account for 2 possible states of the outer edge.</p>
+<p>And, again, divide by 8 to account for rotation of the whole construction and avoid counting each state as 8 different ones.</p>
+<p><strong>Total number of solutions: 4! x 2^4 x 2 / 8 = 96</strong></p>
+<p><strong>Observation #1</strong>: It is possible to screw up the assembly of the puzzle and insert magnets in a way that will result in pieces with identical encodings existing within the same puzzle. The number of possible solved combinations will increase, the total number of combinations will decrease. Ouch!</p>
+<p><strong>Observation #2</strong>: In a proper puzzle that actually has 8 uniquely encoded pieces, it is IMPOSSIBLE to get to a state where all the 12 pairs are pushed towards the outer edges. Piece #0 (000) will only push all 3 magnets when paired with another #0, and since there should be only one #0 piece in the puzzle that should never happen. This is true for any encoding that is a ‘palyndrome’ in a 3bit range (i.e #0, #2, #5, #7) (see <a href="#4bit">4bit</a> variation for a way to possibly do it with 4 bits)</p>
+<h2 id="Practice">Practice</h2>
+<p>In order to validate my theory and also calculate the <strong>God’s Number</strong> (maximum number of moves God has to perform to get to a solved state), I’ve written a simple simulator that tries to scan all possible states by doing it in reverse, starting with a solved state and traversing the tree of all the possible states. The code can be found in <a href="https://github.com/finik/AuzzlePuzzle/blob/master/sim.py" target="_blank" rel="external">sim.py</a>. It starts at the at the initial solved state shown in the picture above, then performs a BFS’ish scan of the whole space by performing all possible operations. For every state, to avoid double counting rotations (remember the division by 8), it rotates the whole puzzle to a <strong>canonical</strong> state where piece #0 is inside the lower left quadrant. </p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">python sim.py</div><div class="line">Total combinations: <span class="number">10080</span>, Solutions: <span class="number">96</span>, Max path <span class="built_in">to</span> solution: <span class="number">10</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">0</span>: <span class="number">96</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">1</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">2</span>: <span class="number">288</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">3</span>: <span class="number">480</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">4</span>: <span class="number">768</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">5</span>: <span class="number">1824</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">6</span>: <span class="number">2688</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">7</span>: <span class="number">3264</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">8</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">9</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">10</span>: <span class="number">96</span></div></pre></td></tr></table></figure>
+
+<p>I am sure it can be done much more efficiently, but that was a quick and dirty exercise and it proves my theoretical calulations (the numbers match!). It also reveals the God’s Number for Auzzle, that number is 10! 10 moves is all it takes to get from the worst position to one of the 96 solved states.</p>
+<h2 id="Actually_solving_it">Actually solving it</h2>
+<p>TBD :)</p>
+<p>Given the total number of combinations and the total number of solutions, it is actually pretty easy to get to one of the solved states just by fidgeting with the puzzle enough time.</p>
+<p>If we mark the matching pieces with 4 different colors like in the picture above, the puzzle is trivial to solve systematically. In fact, we can think of it as a subset of a 2x2x2 cube where one axis rotates only by 180 and another axis doesn’t rotate at all. </p>
+<p>However, individual pieces are not marked and the only thing that can be observed externally by looking at the magnets is the result of the interaction between two adjustent pieces (representing <strong>A xor reversed(B)</strong>). This  makes it much more challenging. I would love to get get my hands on one to see if there is a way to properly formulate an algorithm for a solution.</p>
+<h2 id="Variations">Variations</h2>
+<h3 id="4bit">4bit</h3>
+<p>In this variant, we have more possible encodings (16) than needed to represent 8 unique pieces, however that allows us to skip encodings that require duplicated pieces:</p>
+<p>a) Avoid encodings #0, #6, #9 and #15 (#0 will only fully push away another #0, etc)</p>
+<p>b) Avoid encodings #5, #3, #10, #12 (#5 will only fully pull another #5, etc)</p>
+<p>That leaves with 8 encodings that do not have any of the issues above, each one of them has a proper counterpart for pulling all 4 of its magnets and and another one of pushing all 4. These encodings are: #1, #2, #4, #7, #8, #11, #13 and #14. And the actual matching pairs for both solutions are as follows:</p>
+<p><strong>All magnets pulled inside:</strong> (#1, #7), (#8, #14), (#2, #11), (#4, #13)</p>
+<p><strong>All magnets pushed outside:</strong> (#1, #8), (#2, #4), (#7, #14), (#11, #13)</p>
+<p>It would be logical to assume the total amount of combination will not change (the amount of pieces did not change, it is still 8). The amount of solution states should probably double to 192 (96 inside and 96 outside), and the God’s number should probably decrease by 1 as well (worst case should probably be only 9 moves away from one of the solved states). To test it, I’ve duplicated the simulation and modified it to work with the 4bit encodings above, the code can be found <a href="https://github.com/finik/AuzzlePuzzle/blob/master/sim-4bits.py" target="_blank" rel="external">sim-4bit.py</a></p>
+<p>Results:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">python sim-<span class="number">4</span>bits.py</div><div class="line">Total combinations: <span class="number">10080</span>, Solutions: <span class="number">192</span>, Max path <span class="built_in">to</span> solution: <span class="number">9</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">0</span>: <span class="number">192</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">1</span>: <span class="number">368</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">2</span>: <span class="number">512</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">3</span>: <span class="number">800</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">4</span>: <span class="number">1184</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">5</span>: <span class="number">2496</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">6</span>: <span class="number">2816</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">7</span>: <span class="number">1616</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">8</span>: <span class="number">48</span></div><div class="line">Number <span class="operator">of</span> paths <span class="operator">of</span> <span class="built_in">length</span> <span class="number">9</span>: <span class="number">48</span></div></pre></td></tr></table></figure>
+
+<p>Yeap, we guessed right!</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Below are my notes and a quick brute force scanning of the rotating puzzle called Auzzle by Ilya Osipov.</p>
+<p><img src="https://github.]]>
+    </summary>
+    
+      <category term="puzzles, hobby" scheme="http://finik.net/tags/puzzles-hobby/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[iOS Crash Symbolication for dummies Part 2]]></title>
@@ -155,7 +224,7 @@
     <link href="http://finik.net/2016/08/30/Managing-iOS-build-configurations/"/>
     <id>http://finik.net/2016/08/30/Managing-iOS-build-configurations/</id>
     <published>2016-08-30T22:53:26.000Z</published>
-    <updated>2017-12-17T00:19:58.901Z</updated>
+    <updated>2017-12-17T00:32:48.925Z</updated>
     <content type="html"><![CDATA[<h2 id="Why?">Why?</h2>
 <p>Applications today are rarely being built without 3rd party libraries and SDKs. There are libraries for integrating remote backends into your app. Libraries for effective image caching and loading. Libraries for gathering analytics and libraries for pushing messages. Libraries that help your users report issues, help you debug and analyze crashes. (Yes, that last one is Bugsee)</p>
 <p>It is also a common practice for developers to maintain more than flavor of the application during active development. A debug version of the application may require a new version of the backend server which also might be under development still, it might send analytics data to a different service or it may need to include a helper library that is not necessary in the release version.</p>
@@ -174,7 +243,7 @@
 <p>Fortunately, it is easy to differentiate between App Store and Testflight installations in run-time and initialize Bugsee only when appropriate:</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application</div><div class="line">    didFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions {</div><div class="line">    <span class="comment">// ...other initialization code</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> ([[[[<span class="built_in">NSBundle</span> mainBundle] appStoreReceiptURL] lastPathComponent] isEqualToString:<span class="string">@"sandboxReceipt"</span>]) {</div><div class="line">        <span class="comment">// We are in TestFlight, enable Bugsee!</span></div><div class="line">        [Bugsee launchWithToken:<span class="string">@"your app token"</span>];</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
 
-<h3 id="Debug_vs-_Release_vs-_Beta">Debug vs. Release vs. Beta</h3>
+<h2 id="Debug_vs-_Release_vs-_Beta">Debug vs. Release vs. Beta</h2>
 <p>In this setup you create and maintain three build flavors. Distribution method of the Beta flavor is not important, it can be done either through Ad-hoc distribution (see our <a href="/2016/08/28/iOS-Ad-hoc-distribution-using-Amazon-S3/">tutorial on building in house Ad-hoc distribution using S3</a>) or through TestFlight. In this setup you are back to detecting the configuration at compile. Adding an additional configuration, however, is a multi step process:</p>
 <p>Go to your project <strong>Info</strong>, and under <strong>Configurations</strong>, create a new one by duplicating the Release one.</p>
 <p><img src="/images/build-config/create-configuration.png" alt=""></p>
