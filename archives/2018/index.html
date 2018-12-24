@@ -105,7 +105,7 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p>Below are my notes and a quick brute force scanning of the rotating puzzle called Auzzle by Ilya Osipov.</p>
-<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/woodpic.png" alt="Woodpic"></p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/raw/master/woodpic.png" alt="Woodpic"></p>
 <p><a href="https://www.facebook.com/AuzzlePuzzle/" target="_blank" rel="external">https://www.facebook.com/AuzzlePuzzle/</a></p>
 <p><a href="https://www.youtube.com/watch?v=c7eOGJ46Mu4" target="_blank" rel="external">https://www.youtube.com/watch?v=c7eOGJ46Mu4</a></p>
 <p>Disclaimer: I do not own one. All the work below is my attempt to analyze it after having the pleasure to see and play with a prototype for a few minutes.</p>
@@ -113,12 +113,12 @@ ga('send', 'pageview');
 <p>At first glance the puzzle looks quite overwhelming. It consists of 24 magnets, arranged in pairs, and depending on the polarity of the magnets in the pair, they are either pulled towards the middle, or pushed towards the outer edges. The wooden or plastic pieces holding these magnets can be rotated in multiple directions, constantly changing the matching between the magnets. The puzzle is solved only when all 12 pairs of magnets are pulled towards the middle.</p>
 <p>After further inspection, however, it becomes clear that the things are not as bad as they seem. There are actually only 8 unique solid wooden or plastic pieces, each one containing 3 magnets. In other words, only 4 pairs of 2 pieces each. The placement of the magnets within each piece is unique, we can actually represent it as a binary encoding, 1 if the magnets ‘+’ is pointing towards the center, and 0 if ‘+’ points towards the outer edge. Unsurprisingly, 3 bits is the exact number required to encode 8 unique pieces: #0=000, #1=001, #2=010, #3=011, #4=100, #5=101, #6=110, #7=111.</p>
 <p>Therefore, each piece has only one and only one matching piece resulting in all 3 pairs of magnets pulling towards the middle.</p>
-<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/magnets.jpg" alt="Magnets"></p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/raw/master/magnets.jpg" alt="Magnets"></p>
 <p>If we keep thinking in binary, in order for a pair of pieces to be each others matching counterparts, the following condition has to be true:</p>
 <p><strong>A xor reversed(B) == 7</strong></p>
 <p><code>It is easy to overlook the &quot;reversed&quot; part, but it is important! We encode every piece in the same way, 1 always means &#39;+&#39; pole is oriented towards the center. Pieces will change their orientation, sometimes they will face up and sometimes down, but when faced each other, we can&#39;t operate directly on their encodings, we must remember the top one is upside down (i.e piece 001 (1) will atract magnets in the 110 (6) formation, however the actual encoding of that opposing top piece is 011 (3))</code></p>
 <p>In other words, in order to solve the puzzle, piece #0 must be placed against piece #7, #4 against #6, #1 against #3 and #2 against #5.</p>
-<p><img src="https://github.com/finik/AuzzlePuzzle/blob/master/solution.jpg" alt="Solution"></p>
+<p><img src="https://github.com/finik/AuzzlePuzzle/raw/master/solution.jpg" alt="Solution"></p>
 <h3 id="Total_combinations">Total combinations</h3>
 <p>Total amount of permutations for 8 unique pieces is 8! = 40,320</p>
 <p>We also need to multiply it by 2 to account for two possible states of the outer shell in relation to the internal mechanism.</p>
