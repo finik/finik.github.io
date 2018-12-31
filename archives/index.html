@@ -104,31 +104,32 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>In this post I continue the analysis of Auzzle, the magnetic puzzle by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm to remember. See my <a href="/2018/12/24/Auzzle-Puzzle/">first</a> post for the background initial analysis.</p>
+        <p>In this post I continue the analysis of Auzzle, the magnetic puzzle invented by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm. See my <a href="/2018/12/24/Auzzle-Puzzle/">first</a> post for the background and initial analysis.</p>
 <h2 id="Notation">Notation</h2>
-<p>We will try to adopt a common notation used in Rubik’s cube. The difference is our R and L in Auzzle always rotate by full 180 degrees, so we won’t use R’ and L’.</p>
-<p><img src="/images/auzzle/notation.png" alt="Notation"></p>
-<h2 id="One_algorithm">One algorithm</h2>
-<p>As I shown in my previous post, it is always possible to get to one of the solved state within 10 moves (in fact most of the combinations can be solved in 5-7 moves), however our goal here is different, what we would like is to come up with one basic, intuitive and easy to remember algorithm, which, when applied properly, would help us solve the puzzle. There are multiple ways to go about it, but here one of them:</p>
-<p><img src="/images/auzzle/algorithm.png" alt="Algorithm"></p>
-<p>What does it do? It just swaps top left and right segments on the front. Side effect: top and bottom segments in the right back quadrant are being swapped too. Left back quadrant is being left completely untouched. That means, if you have some segments paired, keeping them in the back and performing the algorithm above will not break the pairing, and the side effect can pretty much be ignored too.</p>
+<p>Lets try to adopt a common notation used in Rubik’s cube. The difference is our R and L in Auzzle always rotate by full 180 degrees, so we won’t need R’ and L’, as they are identical to R and L.</p>
+<p><img src="/images/auzzle/notation.png" alt=""></p>
+<h2 id="Magic_algorithm">Magic algorithm</h2>
+<p>As I’ve shown in my previous post, it is always possible to get to one of the solved state within 10 moves (in fact most cases can be solved within 5-7 moves), however our goal here is different, what we would like is to come up with one basic, intuitive and easy to remember algorithm, which, when applied properly, would help us solve the puzzle. There are multiple ways to go about it, but here one of them:</p>
+<p><img src="/images/auzzle/algorithm.png" alt=""></p>
+<p>What does it do? It just swaps top left and right pieces on the front. But there is a side effect, top and bottom pieces on the right back are being swapped too. Left back is being left completely untouched. Which means, if we have some pieces already paired, keeping them in the back and performing the algorithm above will not break the pairing, and we pretty much can ignore the side effect.</p>
 <h2 id="Phase_1:_Getting_to_one_pair">Phase 1: Getting to one pair</h2>
-<p>It doesn’t look like any algorithms are needed here. Just rotate either top (T) or bottom (B) wheels and you will likely get at least one pair matched, if you don’t after making a full circle, rotate one half vertically (R) or (L) and then rotate (T) or (B) again, you WILL get some pairs matched.</p>
+<p>It doesn’t look like any algorithms are needed here. Just rotate either top (T) or bottom (B) wheels and you will likely get at least one pair matched, if you don’t, after making a full circle, rotate one half vertically (R) or (L) and then rotate (T) or (B) again, you WILL get some pairs matched.</p>
 <p>If you are really lucky, you got all 4 matched, congratulations, the puzzle is solved. If you got two pairs matched, you can skip phase 2 and go directly to phase 3.</p>
 <h2 id="Phase_2:_Getting_second_pair">Phase 2: Getting second pair</h2>
-<p>Remember how we said our magic algorithm doesn’t really mess up anything in the back? So we can put our matched pair in the back left or right quadrant and try performing the algorithm to swap pieces at the front, until we get our second pair matched. The problem is, it won’t always work :) In order to explain why, I will use 4 different colors, as before, to represent 4 different matching pairs. Lets see some cases:</p>
-<p><img src="/images/auzzle/secondpair.png" alt="Second pair"></p>
-<p>Of course, on a real Auzzle we don’t see any colors, and for now, until a better method is found, we are operating in the dark. However, we can see in theory, there are 2 main cases here:</p>
-<p>Case A: This is the easy one, it doesn’t matter where we put our first matched pair (red). We can put it on the right back or left back (A2 is just A1 that has both top and bottom wheels shifted to the right), but the moment  we perform our algorithm, we will get second pair matched, in A1 it will be the green match, in A2 the blue one.</p>
-<p>Case B: This case is not that lucky. It doesn’t matter where we keep our matched red pair and how we rotate the puzzle. Performing the algorithm will not result in any new pairs being created, period. The easiest way is, when you see second pair doesn’t appear no matter what you do, to unpair the first pair by performing one click of one of the wheels, perform the algoritm and look for a new first pair again. (TBD, this works so far, but needs a better, more deterministic method).</p>
+<p>Remember how we said our magic algorithm doesn’t really mess up anything in the back? So we can put our matched pair in the back left or right quadrant and try performing the algorithm to swap pieces at the front, until we get our second pair matched. The problem is, it won’t always work :) In order to explain why, I will use 4 different colors, as before, to represent 4 different matching pairs. Auzzle with one matched pair generally falls within one of the two cases above:</p>
+<p><img src="/images/auzzle/secondpair.png" alt=""></p>
+<p><code>Note: If you look closely, A1 and A2 is actually the same case, just rotated 90 degrees. Similarly B2 is just a rotated B1.</code></p>
+<p>Case A: This is the easy one, for each unsolved pair, one piece is located on the top and one on the bottom. It doesn’t matter where we put our first matched (red) pair, as long as it is on the back it will remain untouched. But the moment we perform our magic algorithm, second pair (either green or blue) is going to get matched.</p>
+<p>Case B: Here matching pieces are colocated on the same top or bottom planes. Which means performing the magic algorithm will not result in any new pairs being created. </p>
+<p>How can we know whether we are in case A or B? That is actually easy, we can rotate the top layer one click right (T’) or left (T). If another pair (our green or blue ones) is getting matched, we are in case A, otherwise we are in case B.</p>
 <h2 id="Phase_3:_Last_two_pairs">Phase 3: Last two pairs</h2>
 <p>Ok, we got 2 pairs matched, just bring them both to the back, and lets work with the unmatched pieces at the front. There are two ways how 2 pairs can be potentially unmatched (see diagram below). On a real Auzzle we obviously won’t see green and red segment colors like in the diagram below, but we can see the magnets interaction and infer the case we are dealing with:</p>
-<p><img src="/images/auzzle/final.png" alt="Final"></p>
+<p><img src="/images/auzzle/final.png" alt=""></p>
 <p>Case A: The easiest one is when we notice an asymmetrical configuration of the magents. The pieces are crossed! We can just perform our magic algorithm to swap to top left and right pieces and the puzzle is solved!</p>
 <p>Case B: This one is a bit trickier. The left and the right side are clearly symmetrical. That tells us the pieces are not crossed. Swapping two top ones will not help us much, we will end up exactly where we started. We need to break the “parity” of the puzzle and get to the Case A we love so much.</p>
-<p>There are also two magnet configuration which don’t tell us whether we are in A or B. In this case it is safe to perform our basic algorithm for Case A, and if puzzle is not solved, just continue with a more advanced algorithm for Case B.</p>
+<p>There are also two magnet configuration which don’t tell us whether we are in A or B. How can we know? Lets try to rotate top layer (T’). If the this is case A (crossed), we will immediately see the pair matched, we are in Case A, rotate the top layer back (T) and perform the magic algorithm. Otherwise we are in Case B. </p>
 <p><code>In fact, if you would rather not think at all about Case A or Case B and dont&#39; care about few extra twists, you can always try to perform the algorithm for A, and if the puzzle is not solved continue to B (i.e</code></p>
-<p>I am sure there are more effective ways to solve the puzzle with less (5-7) moves, even just memorizing and using all the mirror variations of our basic algorithm above would make a huge difference and save tons of unnecessary moves. Phase 2 should be improved too. It’s a start, stay tuned for updates.  </p>
+<p>I am sure there are more effective ways to solve the puzzle with less (5-7) moves, even just memorizing and using all the mirror variations of our magic algorithm above would make a huge difference and save tons of unnecessary moves. Phase 2 should be improved too. It’s a start, stay tuned for updates.  </p>
 
       
     </div>
