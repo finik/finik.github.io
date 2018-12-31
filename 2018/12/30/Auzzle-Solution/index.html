@@ -11,6 +11,8 @@
 <meta property="og:url" content="http://finik.net/2018/12/30/Auzzle-Solution/">
 <meta property="og:site_name" content="Dmitry Fink">
 <meta property="og:description" content="In this post I continue the analysis of Auzzle, the magnetic puzzle invented by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm. See my first post fo">
+<meta property="og:image" content="/images/auzzle/3dprinthalf.jpg">
+<meta property="og:image" content="/images/auzzle/3dprint.jpg">
 <meta property="og:image" content="/images/auzzle/notation.png">
 <meta property="og:image" content="/images/auzzle/algorithm.png">
 <meta property="og:image" content="/images/auzzle/secondpair.png">
@@ -107,17 +109,22 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p>In this post I continue the analysis of Auzzle, the magnetic puzzle invented by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm. See my <a href="/2018/12/24/Auzzle-Puzzle/">first</a> post for the background and initial analysis.</p>
+<p>After practically living for three days at my friend’s house and learning more than I ever wanted to know about 3d printing, I’ve finally got myself an Auzzle to play with. The picture below shows the assembly process:</p>
+<p><img src="/images/auzzle/3dprinthalf.jpg" alt=""></p>
+<h2 id="The_goal">The goal</h2>
+<p>There are four pairs, or 8 pieces total in the puzzle. The goal is to move them around until we get to one of the combinations (there are multiple) where each pair is aligned vertically. In the picture below, piece #1 should be matched with #3 and #0 with #7, so swapping two pieces either on the top layer or the bottom one would solve both pairs. Obviously on a real Auzzle the pieces are not marked with colors or stickers, so our solution should not assume that, instead we need to deduce it just by looking at the magnets formations.</p>
+<p><img src="/images/auzzle/3dprint.jpg" alt=""></p>
 <h2 id="Notation">Notation</h2>
-<p>Lets try to adopt a common notation used in Rubik’s cube. The difference is our R and L in Auzzle always rotate by full 180 degrees, so we won’t need R’ and L’, as they are identical to R and L.</p>
+<p>Lets try to adopt a common notation usually used in Rubik’s cube. The difference is our R and L in Auzzle always rotate by full 180 degrees, so we won’t need R’ and L’, as they are identical to R and L.</p>
 <p><img src="/images/auzzle/notation.png" alt=""></p>
 <h2 id="Magic_algorithm">Magic algorithm</h2>
 <p>As I’ve shown in my previous post, it is always possible to get to one of the solved state within 10 moves (in fact most cases can be solved within 5-7 moves), however our goal here is different, what we would like is to come up with one basic, intuitive and easy to remember algorithm, which, when applied properly, would help us solve the puzzle. There are multiple ways to go about it, but here one of them:</p>
 <p><img src="/images/auzzle/algorithm.png" alt=""></p>
-<p>What does it do? It just swaps top left and right pieces on the front. But there is a side effect, top and bottom pieces on the right back are being swapped too. Left back is being left completely untouched. Which means, if we have some pieces already paired, keeping them in the back and performing the algorithm above will not break the pairing, and we pretty much can ignore the side effect.</p>
+<p>What does it do? It just swaps top left and top right pieces on the front. There is a side effect, top and bottom pieces on the right back are being swapped too. Left back is being left completely untouched. Which means, if we have some pieces already paired, keeping them in the back and performing the algorithm will not mess up their pairing, and we pretty much can ignore the side effect.</p>
 <h2 id="Phase_1:_Getting_to_one_pair">Phase 1: Getting to one pair</h2>
-<p>It doesn’t look like any algorithms are needed here. Just rotate either top (T) or bottom (B) wheels and you will likely get at least one pair matched, if you don’t, after making a full circle, rotate one half vertically (R) or (L) and then rotate (T) or (B) again, you WILL get some pairs matched.</p>
-<p>If you are really lucky, you got all 4 matched, congratulations, the puzzle is solved. If you got two pairs matched, you can skip phase 2 and go directly to phase 3.</p>
-<h2 id="Phase_2:_Getting_second_pair">Phase 2: Getting second pair</h2>
+<p>We don’t really need any algorithm for this. We will just rotate the top (T) and will likely get at least one pair matched, if we don’t, after making a full circle, we rotate right side (R) and then rotate (T) again, we WILL eventually get some pairs matched.</p>
+<p>If we are really lucky and we got all 4 matched, the puzzle is solved. If we got two pairs matched, we skip to phase 3. Otherwise we need to get us a second pair first.</p>
+<h2 id="Phase_2:_Getting_the_second_pair">Phase 2: Getting the second pair</h2>
 <p>Remember how we said our magic algorithm doesn’t really mess up anything in the back? So we can put our matched pair in the back left or right quadrant and try performing the algorithm to swap pieces at the front, until we get our second pair matched. The problem is, it won’t always work :) In order to explain why, I will use 4 different colors, as before, to represent 4 different matching pairs. Auzzle with one matched pair generally falls within one of the two cases above:</p>
 <p><img src="/images/auzzle/secondpair.png" alt=""></p>
 <p><code>Note: If you look closely, A1 and A2 is actually the same case, just rotated 90 degrees. Similarly B2 is just a rotated B1.</code></p>

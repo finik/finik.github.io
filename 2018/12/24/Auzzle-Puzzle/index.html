@@ -19,9 +19,9 @@ Disclaimer:">
 https://www.facebook.com/AuzzlePuzzle/
 https://www.youtube.com/watch?v=c7eOGJ46Mu4
 Disclaimer:">
-<meta property="og:image" content="https://github.com/finik/AuzzlePuzzle/raw/master/woodpic.png">
-<meta property="og:image" content="https://github.com/finik/AuzzlePuzzle/raw/master/magnets.jpg">
-<meta property="og:image" content="https://github.com/finik/AuzzlePuzzle/raw/master/solution.jpg">
+<meta property="og:image" content="/images/auzzle/woodpic.png">
+<meta property="og:image" content="/images/auzzle/magnets.jpg">
+<meta property="og:image" content="/images/auzzle/solution.jpg">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Auzzle Puzzle">
 <meta name="twitter:description" content="Below are my notes and a quick brute force scanning of the rotating puzzle called Auzzle by Ilya Osipov.
@@ -118,7 +118,7 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p>Below are my notes and a quick brute force scanning of the rotating puzzle called Auzzle by Ilya Osipov.</p>
-<p><img src="https://github.com/finik/AuzzlePuzzle/raw/master/woodpic.png" alt="Woodpic"></p>
+<p><img src="/images/auzzle/woodpic.png" alt=""></p>
 <p><a href="https://www.facebook.com/AuzzlePuzzle/" target="_blank" rel="external">https://www.facebook.com/AuzzlePuzzle/</a></p>
 <p><a href="https://www.youtube.com/watch?v=c7eOGJ46Mu4" target="_blank" rel="external">https://www.youtube.com/watch?v=c7eOGJ46Mu4</a></p>
 <p>Disclaimer: I do not own one. All the work below is my attempt to analyze it after having the pleasure to see and play with a prototype for a few minutes.</p>
@@ -126,12 +126,12 @@ ga('send', 'pageview');
 <p>At first glance the puzzle looks quite overwhelming. It consists of 24 magnets, arranged in pairs, and depending on the polarity of the magnets in the pair, they are either pulled towards the middle, or pushed towards the outer edges. The wooden or plastic pieces holding these magnets can be rotated in multiple directions, constantly changing the matching between the magnets. The puzzle is solved only when all 12 pairs of magnets are pulled towards the middle.</p>
 <p>After further inspection, however, it becomes clear that the things are not as bad as they seem. There are actually only 8 unique solid wooden or plastic pieces, each one containing 3 magnets. In other words, only 4 pairs of 2 pieces each. The placement of the magnets within each piece is unique, we can actually represent it as a binary encoding, 1 if the magnets ‘+’ is pointing towards the center, and 0 if ‘+’ points towards the outer edge. Unsurprisingly, 3 bits is the exact number required to encode 8 unique pieces: #0=000, #1=001, #2=010, #3=011, #4=100, #5=101, #6=110, #7=111.</p>
 <p>Therefore, each piece has only one and only one matching piece resulting in all 3 pairs of magnets pulling towards the middle.</p>
-<p><img src="https://github.com/finik/AuzzlePuzzle/raw/master/magnets.jpg" alt="Magnets"></p>
+<p><img src="/images/auzzle/magnets.jpg" alt=""></p>
 <p>If we keep thinking in binary, in order for a pair of pieces to be each others matching counterparts, the following condition has to be true:</p>
 <p><strong>A xor reversed(B) == 7</strong></p>
 <p><code>It is easy to overlook the &quot;reversed&quot; part, but it is important! We encode every piece in the same way, 1 always means &#39;+&#39; pole is oriented towards the center. Pieces will change their orientation, sometimes they will face up and sometimes down, but when faced each other, we can&#39;t operate directly on their encodings, we must remember the top one is upside down (i.e piece 001 (1) will atract magnets in the 110 (6) formation, however the actual encoding of that opposing top piece is 011 (3))</code></p>
 <p>In other words, in order to solve the puzzle, piece #0 must be placed against piece #7, #4 against #6, #1 against #3 and #2 against #5.</p>
-<p><img src="https://github.com/finik/AuzzlePuzzle/raw/master/solution.jpg" alt="Solution"></p>
+<p><img src="/images/auzzle/solution.jpg" alt=""></p>
 <h3 id="Total_combinations">Total combinations</h3>
 <p>Total amount of permutations for 8 unique pieces is 8! = 40,320</p>
 <p>We also need to multiply it by 2 to account for two possible states of the outer shell in relation to the internal mechanism.</p>
@@ -153,10 +153,10 @@ ga('send', 'pageview');
 
 <p>I am sure it can be done much more efficiently, but that was a quick and dirty exercise and it proves my theoretical calulations (the numbers match!). It also reveals the God’s Number for Auzzle, that number is 10! 10 moves is all it takes to get from the worst position to one of the 96 solved states.</p>
 <h2 id="Actually_solving_it">Actually solving it</h2>
-<p>TBD :)</p>
 <p>Given the total number of combinations and the total number of solutions, it is actually pretty easy to get to one of the solved states just by fidgeting with the puzzle enough time.</p>
 <p>If we mark the matching pieces with 4 different colors like in the picture above, the puzzle is trivial to solve systematically. In fact, we can think of it as a subset of a 2x2x2 cube where one axis rotates only by 180 and another axis doesn’t rotate at all. </p>
-<p>However, individual pieces are not marked and the only thing that can be observed externally by looking at the magnets is the result of the interaction between two adjustent pieces (representing <strong>A xor reversed(B)</strong>). This  makes it much more challenging. I would love to get get my hands on one to see if there is a way to properly formulate an algorithm for a solution.</p>
+<p>However, individual pieces are not marked and the only thing that can be observed externally by looking at the magnets is the result of the interaction between two adjustent pieces (representing <strong>A xor reversed(B)</strong>). This  makes it much more challenging. </p>
+<p><strong>Update:</strong> I’ve 3d printed an Auzzle and played with it a bit, please see my next post on actually <a href="/2018/12/30/Auzzle-Solution/">solving it</a>.</p>
 <h2 id="Variations">Variations</h2>
 <h3 id="4bit">4bit</h3>
 <p>In this variant, we have more possible encodings (16) than needed to represent 8 unique pieces, however that allows us to skip encodings that require duplicated pieces:</p>
