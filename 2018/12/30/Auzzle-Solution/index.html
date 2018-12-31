@@ -3,35 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Contact me | Dmitry Fink</title>
+  <title>Auzzle Solution | Dmitry Fink</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="on
-
-LinkedIn: http://www.linkedin.com/in/finik/
-Twitter: https://twitter.com/finik
-Github: https://github.com/finik
-
-or just leave a comment below">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Contact me">
-<meta property="og:url" content="http://finik.net/contact/index.html">
+  <meta name="description" content="In this post I continue the analysis of Auzzle, the magnetic puzzle by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm to remember. See my first post">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Auzzle Solution">
+<meta property="og:url" content="http://finik.net/2018/12/30/Auzzle-Solution/">
 <meta property="og:site_name" content="Dmitry Fink">
-<meta property="og:description" content="on
-
-LinkedIn: http://www.linkedin.com/in/finik/
-Twitter: https://twitter.com/finik
-Github: https://github.com/finik
-
-or just leave a comment below">
+<meta property="og:description" content="In this post I continue the analysis of Auzzle, the magnetic puzzle by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm to remember. See my first post">
+<meta property="og:image" content="/images/auzzle/notation.png">
+<meta property="og:image" content="/images/auzzle/algorithm.png">
+<meta property="og:image" content="/images/auzzle/secondpair.png">
+<meta property="og:image" content="/images/auzzle/final.png">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Contact me">
-<meta name="twitter:description" content="on
-
-LinkedIn: http://www.linkedin.com/in/finik/
-Twitter: https://twitter.com/finik
-Github: https://github.com/finik
-
-or just leave a comment below">
+<meta name="twitter:title" content="Auzzle Solution">
+<meta name="twitter:description" content="In this post I continue the analysis of Auzzle, the magnetic puzzle by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm to remember. See my first post">
 <meta name="twitter:creator" content="@finik">
 <link rel="publisher" href="102647827171370750000">
 
@@ -98,10 +84,10 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="page-undefined" class="article article-type-page" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Auzzle-Solution" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/contact/index.html" class="article-date">
-  <time datetime="2014-10-30T05:17:43.000Z" itemprop="datePublished">Oct 29 2014</time>
+    <a href="/2018/12/30/Auzzle-Solution/" class="article-date">
+  <time datetime="2018-12-31T07:45:24.000Z" itemprop="datePublished">Dec 30 2018</time>
 </a>
     
   </div>
@@ -112,7 +98,7 @@ ga('send', 'pageview');
         
   
     <h1 class="article-title" itemprop="name">
-      Contact me
+      Auzzle Solution
     </h1>
   
 
@@ -120,26 +106,56 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>on</p>
-<ul>
-<li>LinkedIn: <a href="http://www.linkedin.com/in/finik/" target="_blank" rel="external">http://www.linkedin.com/in/finik/</a></li>
-<li>Twitter: <a href="https://twitter.com/finik" target="_blank" rel="external">https://twitter.com/finik</a></li>
-<li>Github: <a href="https://github.com/finik" target="_blank" rel="external">https://github.com/finik</a></li>
-</ul>
-<p>or just leave a comment below</p>
+        <p>In this post I continue the analysis of Auzzle, the magnetic puzzle by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm to remember. See my <a href="/2018/12/24/Auzzle-Puzzle/">first</a> post for the background initial analysis.</p>
+<h2 id="Notation">Notation</h2>
+<p>We will try to adopt a common notation used in Rubik’s cube. The difference is our R and L in Auzzle always rotate by full 180 degrees, so we won’t use R’ and L’.</p>
+<p><img src="/images/auzzle/notation.png" alt="Notation"></p>
+<h2 id="One_algorithm">One algorithm</h2>
+<p>As I shown in my previous post, it is always possible to get to one of the solved state within 10 moves (in fact most of the combinations can be solved in 5-7 moves), however our goal here is different, what we would like is to come up with one basic, intuitive and easy to remember algorithm, which, when applied properly, would help us solve the puzzle. There are multiple ways to go about it, but here one of them:</p>
+<p><img src="/images/auzzle/algorithm.png" alt="Algorithm"></p>
+<p>What does it do? It just swaps top left and right segments on the front. Side effect: top and bottom segments in the right back quadrant are being swapped too. Left back quadrant is being left completely untouched. That means, if you have some segments paired, keeping them in the back and performing the algorithm above will not break the pairing, and the side effect can pretty much be ignored too.</p>
+<h2 id="Phase_1:_Getting_to_one_pair">Phase 1: Getting to one pair</h2>
+<p>It doesn’t look like any algorithms are needed here. Just rotate either top (T) or bottom (B) wheels and you will likely get at least one pair matched, if you don’t after making a full circle, rotate one half vertically (R) or (L) and then rotate (T) or (B) again, you WILL get some pairs matched.</p>
+<p>If you are really lucky, you got all 4 matched, congratulations, the puzzle is solved. If you got two pairs matched, you can skip phase 2 and go directly to phase 3.</p>
+<h2 id="Phase_2:_Getting_second_pair">Phase 2: Getting second pair</h2>
+<p>Remember how we said our magic algorithm doesn’t really mess up anything in the back? So we can put our matched pair in the back left or right quadrant and try performing the algorithm to swap pieces at the front, until we get our second pair matched. The problem is, it won’t always work :) In order to explain why, I will use 4 different colors, as before, to represent 4 different matching pairs. Lets see some cases:</p>
+<p><img src="/images/auzzle/secondpair.png" alt="Second pair"></p>
+<p>Of course, on a real Auzzle we don’t see any colors, and for now, until a better method is found, we are operating in the dark. However, we can see in theory, there are 2 main cases here:</p>
+<p>Case A: This is the easy one, it doesn’t matter where we put our first matched pair (red). We can put it on the right back or left back (A2 is just A1 that has both top and bottom wheels shifted to the right), but the moment  we perform our algorithm, we will get second pair matched, in A1 it will be the green match, in A2 the blue one.</p>
+<p>Case B: This case is not that lucky. It doesn’t matter where we keep our matched red pair and how we rotate the puzzle. Performing the algorithm will not result in any new pairs being created, period. The easiest way is, when you see second pair doesn’t appear no matter what you do, to unpair the first pair by performing one click of one of the wheels, perform the algoritm and look for a new first pair again. (TBD, this works so far, but needs a better, more deterministic method).</p>
+<h2 id="Phase_3:_Last_two_pairs">Phase 3: Last two pairs</h2>
+<p>Ok, we got 2 pairs matched, just bring them both to the back, and lets work with the unmatched pieces at the front. There are two ways how 2 pairs can be potentially unmatched (see diagram below). On a real Auzzle we obviously won’t see green and red segment colors like in the diagram below, but we can see the magnets interaction and infer the case we are dealing with:</p>
+<p><img src="/images/auzzle/final.png" alt="Final"></p>
+<p>Case A: The easiest one is when we notice an asymmetrical configuration of the magents. The pieces are crossed! We can just perform our magic algorithm to swap to top left and right pieces and the puzzle is solved!</p>
+<p>Case B: This one is a bit trickier. The left and the right side are clearly symmetrical. That tells us the pieces are not crossed. Swapping two top ones will not help us much, we will end up exactly where we started. We need to break the “parity” of the puzzle and get to the Case A we love so much.</p>
+<p>There are also two magnet configuration which don’t tell us whether we are in A or B. In this case it is safe to perform our basic algorithm for Case A, and if puzzle is not solved, just continue with a more advanced algorithm for Case B.</p>
+<p><code>In fact, if you would rather not think at all about Case A or Case B and dont&#39; care about few extra twists, you can always try to perform the algorithm for A, and if the puzzle is not solved continue to B (i.e</code></p>
+<p>I am sure there are more effective ways to solve the puzzle with less (5-7) moves, even just memorizing and using all the mirror variations of our basic algorithm above would make a huge difference and save tons of unnecessary moves. Phase 2 should be improved too. It’s a start, stay tuned for updates.  </p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://finik.net/contact/index.html" data-id="c2gp8j8e5mce3lh6" class="article-share-link">Share</a>
+      <a data-url="http://finik.net/2018/12/30/Auzzle-Solution/" data-id="eyapianocchx045s" class="article-share-link">Share</a>
       
-        <a href="http://finik.net/contact/index.html#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="http://finik.net/2018/12/30/Auzzle-Solution/#disqus_thread" class="article-comment-link">Comments</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puzzles-hobby/">puzzles, hobby</a></li></ul>
+
     </footer>
   </div>
   
     
+<nav id="article-nav">
+  
+  
+    <a href="/2018/12/24/Auzzle-Puzzle/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Auzzle Puzzle</div>
+    </a>
+  
+</nav>
+
   
 </article>
 
@@ -266,7 +282,7 @@ ga('send', 'pageview');
 <script>
   var disqus_shortname = 'finiknet';
   
-  var disqus_url = 'http://finik.net/contact/index.html';
+  var disqus_url = 'http://finik.net/2018/12/30/Auzzle-Solution/';
   
   (function(){
     var dsq = document.createElement('script');

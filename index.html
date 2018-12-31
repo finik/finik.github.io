@@ -82,6 +82,71 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-Auzzle-Solution" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/30/Auzzle-Solution/" class="article-date">
+  <time datetime="2018-12-31T07:45:24.000Z" itemprop="datePublished">Dec 30 2018</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/30/Auzzle-Solution/">Auzzle Solution</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>In this post I continue the analysis of Auzzle, the magnetic puzzle by Ilya Osipov and attempt to come up with a simple to remember solution involving only one algorithm to remember. See my <a href="/2018/12/24/Auzzle-Puzzle/">first</a> post for the background initial analysis.</p>
+<h2 id="Notation">Notation</h2>
+<p>We will try to adopt a common notation used in Rubik’s cube. The difference is our R and L in Auzzle always rotate by full 180 degrees, so we won’t use R’ and L’.</p>
+<p><img src="/images/auzzle/notation.png" alt="Notation"></p>
+<h2 id="One_algorithm">One algorithm</h2>
+<p>As I shown in my previous post, it is always possible to get to one of the solved state within 10 moves (in fact most of the combinations can be solved in 5-7 moves), however our goal here is different, what we would like is to come up with one basic, intuitive and easy to remember algorithm, which, when applied properly, would help us solve the puzzle. There are multiple ways to go about it, but here one of them:</p>
+<p><img src="/images/auzzle/algorithm.png" alt="Algorithm"></p>
+<p>What does it do? It just swaps top left and right segments on the front. Side effect: top and bottom segments in the right back quadrant are being swapped too. Left back quadrant is being left completely untouched. That means, if you have some segments paired, keeping them in the back and performing the algorithm above will not break the pairing, and the side effect can pretty much be ignored too.</p>
+<h2 id="Phase_1:_Getting_to_one_pair">Phase 1: Getting to one pair</h2>
+<p>It doesn’t look like any algorithms are needed here. Just rotate either top (T) or bottom (B) wheels and you will likely get at least one pair matched, if you don’t after making a full circle, rotate one half vertically (R) or (L) and then rotate (T) or (B) again, you WILL get some pairs matched.</p>
+<p>If you are really lucky, you got all 4 matched, congratulations, the puzzle is solved. If you got two pairs matched, you can skip phase 2 and go directly to phase 3.</p>
+<h2 id="Phase_2:_Getting_second_pair">Phase 2: Getting second pair</h2>
+<p>Remember how we said our magic algorithm doesn’t really mess up anything in the back? So we can put our matched pair in the back left or right quadrant and try performing the algorithm to swap pieces at the front, until we get our second pair matched. The problem is, it won’t always work :) In order to explain why, I will use 4 different colors, as before, to represent 4 different matching pairs. Lets see some cases:</p>
+<p><img src="/images/auzzle/secondpair.png" alt="Second pair"></p>
+<p>Of course, on a real Auzzle we don’t see any colors, and for now, until a better method is found, we are operating in the dark. However, we can see in theory, there are 2 main cases here:</p>
+<p>Case A: This is the easy one, it doesn’t matter where we put our first matched pair (red). We can put it on the right back or left back (A2 is just A1 that has both top and bottom wheels shifted to the right), but the moment  we perform our algorithm, we will get second pair matched, in A1 it will be the green match, in A2 the blue one.</p>
+<p>Case B: This case is not that lucky. It doesn’t matter where we keep our matched red pair and how we rotate the puzzle. Performing the algorithm will not result in any new pairs being created, period. The easiest way is, when you see second pair doesn’t appear no matter what you do, to unpair the first pair by performing one click of one of the wheels, perform the algoritm and look for a new first pair again. (TBD, this works so far, but needs a better, more deterministic method).</p>
+<h2 id="Phase_3:_Last_two_pairs">Phase 3: Last two pairs</h2>
+<p>Ok, we got 2 pairs matched, just bring them both to the back, and lets work with the unmatched pieces at the front. There are two ways how 2 pairs can be potentially unmatched (see diagram below). On a real Auzzle we obviously won’t see green and red segment colors like in the diagram below, but we can see the magnets interaction and infer the case we are dealing with:</p>
+<p><img src="/images/auzzle/final.png" alt="Final"></p>
+<p>Case A: The easiest one is when we notice an asymmetrical configuration of the magents. The pieces are crossed! We can just perform our magic algorithm to swap to top left and right pieces and the puzzle is solved!</p>
+<p>Case B: This one is a bit trickier. The left and the right side are clearly symmetrical. That tells us the pieces are not crossed. Swapping two top ones will not help us much, we will end up exactly where we started. We need to break the “parity” of the puzzle and get to the Case A we love so much.</p>
+<p>There are also two magnet configuration which don’t tell us whether we are in A or B. In this case it is safe to perform our basic algorithm for Case A, and if puzzle is not solved, just continue with a more advanced algorithm for Case B.</p>
+<p><code>In fact, if you would rather not think at all about Case A or Case B and dont&#39; care about few extra twists, you can always try to perform the algorithm for A, and if the puzzle is not solved continue to B (i.e</code></p>
+<p>I am sure there are more effective ways to solve the puzzle with less (5-7) moves, even just memorizing and using all the mirror variations of our basic algorithm above would make a huge difference and save tons of unnecessary moves. Phase 2 should be improved too. It’s a start, stay tuned for updates.  </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://finik.net/2018/12/30/Auzzle-Solution/" data-id="eyapianocchx045s" class="article-share-link">Share</a>
+      
+        <a href="http://finik.net/2018/12/30/Auzzle-Solution/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puzzles-hobby/">puzzles, hobby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Auzzle-Puzzle" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2018/12/24/Auzzle-Puzzle/" class="article-date">
@@ -721,51 +786,6 @@ ga('send', 'pageview');
 
 
   
-    <article id="post-hello-octopress" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2012/12/19/hello-octopress/" class="article-date">
-  <time datetime="2012-12-20T06:08:00.000Z" itemprop="datePublished">Dec 19 2012</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2012/12/19/hello-octopress/">Hello, Octopress!</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>I finally gave in to peer pressure and switched my blog to Octopress.</p>
-<p>Apparently WordPress is not cool anymore and all the kids forgot php, uninstalled mysql, went back to generating static pages and just outsource all comment management headache to <a href="http://disqus.com" target="_blank" rel="external">Disqus</a>.</p>
-<p>In the process if migration I decided I didn’t really have any important posts or comments I had to move over from the old blog (which was mostly a mirror of my old LiveJournal account anyway), so I just left all of them behind and starting from a clean sheet here.</p>
-<p>Well, I actually did move <a href="/blog/2010/10/24/multiple-working-folders-with-single-git-repository">one</a> post, the only technical post I had there, and since the plan for this new blog to be fairly technical, I decided it will be a good start.</p>
-<p>Wish me luck and lets hope I will actually write.</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://finik.net/2012/12/19/hello-octopress/" data-id="lij3gsw7tewssl31" class="article-share-link">Share</a>
-      
-        <a href="http://finik.net/2012/12/19/hello-octopress/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/">blog</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/octopress/">octopress</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -795,6 +815,10 @@ ga('send', 'pageview');
       <ul>
         
           <li>
+            <a href="/2018/12/30/Auzzle-Solution/">Auzzle Solution</a>
+          </li>
+        
+          <li>
             <a href="/2018/12/24/Auzzle-Puzzle/">Auzzle Puzzle</a>
           </li>
         
@@ -810,10 +834,6 @@ ga('send', 'pageview');
             <a href="/2016/08/30/Managing-iOS-build-configurations/">Managing iOS build configurations</a>
           </li>
         
-          <li>
-            <a href="/2016/08/28/iOS-Ad-hoc-distribution-using-Amazon-S3/">iOS Ad-hoc distribution using Amazon S3</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -823,7 +843,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/amazon/">amazon</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws-build-ios/">aws, build, ios</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bidi/">bidi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/build/">build</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-beanstalk/">elastic beanstalk</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hebrew/">hebrew</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-build-tesflight/">ios, build, tesflight</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-symbolication-dsym/">ios, symbolication, dsym</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/">kernel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/octopress/">octopress</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/puzzles-hobby/">puzzles, hobby</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rant/">rant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rss/">rss</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/amazon/">amazon</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws-build-ios/">aws, build, ios</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bidi/">bidi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/build/">build</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-beanstalk/">elastic beanstalk</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hebrew/">hebrew</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-build-tesflight/">ios, build, tesflight</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ios-symbolication-dsym/">ios, symbolication, dsym</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kernel/">kernel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/octopress/">octopress</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/puzzles-hobby/">puzzles, hobby</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rant/">rant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rss/">rss</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -832,7 +852,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/amazon/" style="font-size: 10.00px;">amazon</a><a href="/tags/aws/" style="font-size: 10.00px;">aws</a><a href="/tags/aws-build-ios/" style="font-size: 10.00px;">aws, build, ios</a><a href="/tags/bidi/" style="font-size: 10.00px;">bidi</a><a href="/tags/blog/" style="font-size: 20.00px;">blog</a><a href="/tags/build/" style="font-size: 10.00px;">build</a><a href="/tags/elastic-beanstalk/" style="font-size: 10.00px;">elastic beanstalk</a><a href="/tags/git/" style="font-size: 10.00px;">git</a><a href="/tags/google/" style="font-size: 10.00px;">google</a><a href="/tags/hebrew/" style="font-size: 10.00px;">hebrew</a><a href="/tags/hexo/" style="font-size: 10.00px;">hexo</a><a href="/tags/ios-build-tesflight/" style="font-size: 10.00px;">ios, build, tesflight</a><a href="/tags/ios-symbolication-dsym/" style="font-size: 15.00px;">ios, symbolication, dsym</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/nginx/" style="font-size: 10.00px;">nginx</a><a href="/tags/octopress/" style="font-size: 10.00px;">octopress</a><a href="/tags/puzzles-hobby/" style="font-size: 10.00px;">puzzles, hobby</a><a href="/tags/rant/" style="font-size: 10.00px;">rant</a><a href="/tags/rss/" style="font-size: 10.00px;">rss</a>
+      <a href="/tags/amazon/" style="font-size: 10.00px;">amazon</a><a href="/tags/aws/" style="font-size: 10.00px;">aws</a><a href="/tags/aws-build-ios/" style="font-size: 10.00px;">aws, build, ios</a><a href="/tags/bidi/" style="font-size: 10.00px;">bidi</a><a href="/tags/blog/" style="font-size: 20.00px;">blog</a><a href="/tags/build/" style="font-size: 10.00px;">build</a><a href="/tags/elastic-beanstalk/" style="font-size: 10.00px;">elastic beanstalk</a><a href="/tags/git/" style="font-size: 10.00px;">git</a><a href="/tags/google/" style="font-size: 10.00px;">google</a><a href="/tags/hebrew/" style="font-size: 10.00px;">hebrew</a><a href="/tags/hexo/" style="font-size: 10.00px;">hexo</a><a href="/tags/ios-build-tesflight/" style="font-size: 10.00px;">ios, build, tesflight</a><a href="/tags/ios-symbolication-dsym/" style="font-size: 15.00px;">ios, symbolication, dsym</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/nginx/" style="font-size: 10.00px;">nginx</a><a href="/tags/octopress/" style="font-size: 10.00px;">octopress</a><a href="/tags/puzzles-hobby/" style="font-size: 15.00px;">puzzles, hobby</a><a href="/tags/rant/" style="font-size: 10.00px;">rant</a><a href="/tags/rss/" style="font-size: 10.00px;">rss</a>
     </div>
   </div>
 
@@ -841,7 +861,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2010/10/">October 2010</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2010/10/">October 2010</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
