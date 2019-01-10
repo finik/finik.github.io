@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://finik.net/"/>
-  <updated>2018-12-31T22:03:51.510Z</updated>
+  <updated>2019-01-10T06:45:42.418Z</updated>
   <id>http://finik.net/</id>
   
   <author>
@@ -13,6 +13,40 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Tokamak Puzzle]]></title>
+    <link href="http://finik.net/2019/01/09/Tokamak-Puzzle/"/>
+    <id>http://finik.net/2019/01/09/Tokamak-Puzzle/</id>
+    <published>2019-01-10T05:49:43.000Z</published>
+    <updated>2019-01-10T06:44:29.171Z</updated>
+    <content type="html"><![CDATA[<p>Oscar Van Devender did a varation of the Auzzle Puzzle and called it <a href="https://i.materialise.com/en/shop/item/tokamak" target="_blank" rel="external">Tokamak</a>:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xyj9uF6YkdE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+<p>Among the improvents Oscar mentions the following:</p>
+<ol>
+<li><p>The eight segments were given eight different colors. The segments were rather hard to keep track of in the original version.</p>
+</li>
+<li><p>The magnets were placed such that the puzzle can only be solved when the top four segments are offset from the bottom ones.</p>
+</li>
+</ol>
+<p>While I like the shape and the looks of the colored Tokamak, and I would love to get the STL files to print one for myself (I find the original Auzzle too big for my hands), I have to admit I disagree with Oscar on both points:</p>
+<ol>
+<li><p>When segments are colored, it stops being a magnetic puzzle. Magnets start to act as a decoration, they are not longer vital for a solution. The puzzle is reduced to a 2x2x2 cube with a few constraints on specific axis, which is trivial to solve.</p>
+</li>
+<li><p>Introduction of a shift between upper and lower layer does not add, but likely reduces puzzle complexity even more. Here is a logical proof (you might need to refer my original <a href="/2018/12/24/Auzzle-Puzzle">Auzzle Analysis</a> for some context). We should explore two cases:</p>
+<p> a) Lets assume that the way Tokamak is assembled, all 8 segments happend to still be unique (i.e all numbers from 0 to 7 are being represented: 000, 001, 010 .. 111). By definition then, that puzzle has also 96 non-shifted solutions in which segments are aligned, as described in my original analysis. So the shift during assembly was pretty much a useless gesture.</p>
+<p> b) To avoid that, we must ensure during assebly that segments are NOT unique and some encodings are not represented. That means two or more segments must share the same binary encoding, as we still have 8 segments. That in turn means these similar segments can swap places and the puzzle would remain solved (all magnets would still attract). So total number of unique combinations is decreased by a factor of K! while the number of solutions increases by a factor of K! (where K is number of pieces sharing the same encoding).</p>
+</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Oscar Van Devender did a varation of the Auzzle Puzzle and called it <a href="https://i.materialise.com/en/shop/item/tokamak" target="_bl]]>
+    </summary>
+    
+      <category term="puzzles, hobby" scheme="http://finik.net/tags/puzzles-hobby/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Auzzle Solution]]></title>
